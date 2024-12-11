@@ -29,6 +29,6 @@ import { Auth } from './auth/entities/auth.entity';
 
   ],
   controllers: [ ],
-  providers: [  MqttService],
+
 })
 export class AppModule {}
