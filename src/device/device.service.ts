@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Repository } from 'typeorm';
+import { EntityManager, Not, Repository } from 'typeorm';
 import { DeviceMessages } from './entities/device-messages.entity';
 import { Device } from './entities/device.entity';
 import { DeviceSettings } from './entities/device-settings.entity';
@@ -16,41 +16,168 @@ export class DeviceService {
   ) { }
   async create(createDeviceDto: CreateDeviceDto) {
     const { dev_id, name } = createDeviceDto;
-  
-    return await this.entityManager.transaction(async (transactionEntityManager) => {
-     
-      const device = transactionEntityManager.create(Device, { dev_id, name });
-      const savedDevice = await transactionEntityManager.save(device);
-  
-     
-      const newDeviceSettings = transactionEntityManager.create(DeviceSettings, {
-        device: savedDevice,  
+    try {
+
+
+      return await this.entityManager.transaction(async (transactionEntityManager) => {
+
+        const device = transactionEntityManager.create(Device, { dev_id, name });
+        const savedDevice = await transactionEntityManager.save(device);
+
+
+        const newDeviceSettings = transactionEntityManager.create(DeviceSettings, {
+          device: savedDevice,
+        });
+        await transactionEntityManager.save(newDeviceSettings);
+
+
+        const newDeviceMessage = transactionEntityManager.create(DeviceMessages, {
+          device: savedDevice,
+        });
+        await transactionEntityManager.save(newDeviceMessage);
+
+        return savedDevice;
       });
-      await transactionEntityManager.save(newDeviceSettings);
+
+    } catch (error) {
+      throw new InternalServerErrorException(error)
+    }
+  }
+
+  async findAll(query: any) {
+    try {
+      const { name, dev_id, id, sort } = query;
+  
+       
+      const qb = this.entityManager.createQueryBuilder(Device, 'device');
+  
+      if (name) {
+        qb.andWhere('device.name LIKE :name', { name: `%${name}%` });
+      }
+  
+      if (dev_id) {
+        qb.andWhere('device.dev_id LIKE :dev_id', { dev_id: `%${dev_id}%` });
+      }
+  
+      if (id) {
+        qb.andWhere('device.id = :id', { id });
+      }
   
      
-      const newDeviceMessage = transactionEntityManager.create(DeviceMessages, {
-        device: savedDevice, 
-      });
-      await transactionEntityManager.save(newDeviceMessage);
+      if (sort) {
+        const order = sort.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
+        qb.orderBy('device.createdAt', order);
+      } else {
+        qb.orderBy('device.createdAt', 'ASC');  
+      }
   
-      return savedDevice;
-    });
+      return await qb.getMany();
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
+  }
+  async findOne(id: number) {
+    try {
+       const device = await this.entityManager.findOne(Device, {
+        where: { id },
+      });
+  
+      if (!device) throw new NotFoundException('Device does not exist');
+  
+       const settings = await this.entityManager.findOne(DeviceSettings, {
+        where: { device: { id } },
+      });
+  
+       const messages = await this.entityManager.findOne(DeviceMessages, {
+        where: { device: { id } },
+      });
+  
+       const result = {
+        ...device,
+        settings,
+        messages,
+      };
+  
+      return result;
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw new NotFoundException(error.message);
+      }
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
-  findAll() {
-    return `This action returns all device`;
+  async update(id: number, updateDeviceDto: UpdateDeviceDto) {
+    try {
+       const device = await this.entityManager.findOne(Device, {
+        where: { id },
+      });
+  
+      if (!device) {
+        throw new NotFoundException(`Device with ID ${id} not found`);
+      }
+  
+       const settings = await this.entityManager.findOne(DeviceSettings, {
+        where: { device: { id } },
+      });
+  
+      const messages = await this.entityManager.findOne(DeviceMessages, {
+        where: { device: { id } },
+      });
+  
+       device.dev_id = updateDeviceDto.dev_id;
+      device.name = updateDeviceDto.name;
+  
+       if (settings) {
+        settings.relay_pulse_time = updateDeviceDto.relay_pulse_time;
+        settings.lcd_brightness = updateDeviceDto.lcd_brightness;
+        settings.led_brightness = updateDeviceDto.led_brightness;
+        settings.msg_appear_time = updateDeviceDto.msg_appear_time;
+        settings.storage_disable = updateDeviceDto.storage_disable;
+        settings.relay1_node = updateDeviceDto.relay1_node;
+        settings.op_mode = updateDeviceDto.op_mode;
+        settings.soft_version = updateDeviceDto.soft_version;
+        settings.hardware_version = updateDeviceDto.hardware_version;
+        settings.limit = updateDeviceDto.limit;
+        settings.network = updateDeviceDto.network;
+        settings.signal = updateDeviceDto.signal;
+  
+         await this.entityManager.save(DeviceSettings, settings);
+      }
+  
+       await this.entityManager.save(Device, device);
+  
+       return {
+        ...device,
+        settings,
+        messages,  
+      };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} device`;
+  
+  async remove(id: number) {
+    try {
+      
+      const device = await this.entityManager.findOne(Device, {
+        where: { id },
+      });
+  
+      if (!device) {
+        throw new NotFoundException(`Device with ID ${id} not found`);
+      }
+  
+       await this.entityManager.delete(DeviceSettings, { device: { id } });
+      await this.entityManager.delete(DeviceMessages, { device: { id } });
+  
+     
+      await this.entityManager.delete(Device, id);
+  
+      return { message: `Device with ID ${id} has been removed successfully.` };
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
-
-  update(id: number, updateDeviceDto: UpdateDeviceDto) {
-    return `This action updates a #${id} device`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} device`;
-  }
+  
 }

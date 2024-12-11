@@ -33,8 +33,8 @@ import { DeviceMessages } from './device-messages.entity';
   
     @OneToOne(() => DeviceSettings, (settings) => settings.device, { cascade: true })
     @JoinColumn()
-    settings: Promise<DeviceSettings>;
-  
+    settings: DeviceSettings;
+    
     @OneToOne(() => DeviceMessages, (messages) => messages.device, { cascade: true })
     @JoinColumn()
     messages: DeviceMessages;

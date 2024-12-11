@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
@@ -12,23 +12,26 @@ export class DeviceController {
     return this.deviceService.create(createDeviceDto);
   }
 
-  @Get()
-  findAll() {
-    return this.deviceService.findAll();
+ 
+
+  @Get('get-all')
+  async findAll(@Query() query: any) {
+    return await this.deviceService.findAll(query);
   }
+  
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.deviceService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    return await this.deviceService.findOne(+id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
+  async update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
     return this.deviceService.update(+id, updateDeviceDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.deviceService.remove(+id);
+ async remove(@Param('id') id: string) {
+    return  await this.deviceService.remove(+id);
   }
 }

@@ -16,6 +16,7 @@ import { Auth } from './auth/entities/auth.entity';
 
     TypeOrmModule.forFeature([Auth, Device, DeviceSettings, DeviceMessages  ]), 
     TypeOrmModule.forRoot({
+      // logging: true,
       type: 'mysql',
       host: 'localhost',
       port: 3306,
