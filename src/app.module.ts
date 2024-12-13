@@ -10,7 +10,9 @@ import { Device } from './device/entities/device.entity';
 import { DeviceSettings } from './device/entities/device-settings.entity';
 import { DeviceMessages } from './device/entities/device-messages.entity';
 import { Auth } from './auth/entities/auth.entity';
-
+import { MicroservicesModule } from './microservices/microservices.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
+ 
 @Module({
   imports: [MqttModule,   AuthModule, DeviceModule  , 
 
@@ -25,7 +27,7 @@ import { Auth } from './auth/entities/auth.entity';
       database: 'mqtt-listener',
       entities: [Auth,Device, DeviceSettings, DeviceMessages   ],
       synchronize: true,
-    }),
+    }), MicroservicesModule,
 
   ],
   controllers: [ ],

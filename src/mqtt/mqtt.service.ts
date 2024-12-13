@@ -10,8 +10,8 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   heartbeatTopic = 'Lift/+/events/heartbeat';
   onModuleInit() {
 
-    this.client = mqtt.connect('mqtt://127.0.0.1:1883', {
-      clientId: 'nestjs-client',
+    this.client = mqtt.connect('mqtt://127.0.0.1', {
+      port: 1883
     });
 
 
@@ -36,9 +36,9 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
 
     this.client.on('message', (topic, message) => {
-      // this.mqttProvider.TopicHandler(topic,message)
-      console.log(`Received message on topic "${topic}": ${message.toString()}`);
-      console.log(this.client)
+      this.mqttProvider.TopicHandler(topic,message)
+     
+      
 
     });
 
@@ -59,8 +59,18 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     }
   }  
 
+  publishMessage(device_id, payload) {
+    const topic = `Lift/${device_id}/commands/general`;
+    console.log(topic)
 
-
+   this.client.publish(topic, payload, { qos: 1 }, (err) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.log(topic)
+        }
+    });
+  }
 
 
 }

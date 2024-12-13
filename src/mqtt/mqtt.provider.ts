@@ -1,40 +1,39 @@
-import { Injectable } from "@nestjs/common";
+import { Inject, Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+ 
 
 @Injectable()
 export class MqttProvider {
+  
+  constructor(
+    private readonly eventEmitter: EventEmitter2
+  ) {}
 
+        clientConnection = new Map()
+
+        setClientConnection(client:any){
+             this.clientConnection.set(client, client)
+        }
 
     TopicHandler(topic,message){
         const msgJson:any = this.parseHexPayload(message);
 
         if (topic.match(/Lift\/[^\/]+\/events\/general/)) {
             if(msgJson.command === 1) {
-    
+                console.log("COMMAND 1")
             }
             if(msgJson.command === 4) {
                 const payload = Buffer.from(msgJson.payload, 'binary');
                 msgJson.amount = payload.readUInt16BE(0)
                 msgJson.card = payload.toString('utf8', 2, 10)
-    
+                console.log("COMMAND 4")
+
             }
-            // axios.get('https://3.71.18.216/api/mqtt/general', {
-            //     params:{
-            //         payload: msgJson,
-            //         topic: topic
-            //     }
-            // })
-            //     .then(response => {
-            //     })
-            //     .catch(error => console.error('Error sending general event', error));
+   
         } else if (topic.match(/Lift\/[^\/]+\/events\/heartbeat/)) {
-            // axios.get('https://3.71.18.216/api/mqtt/heartbeat', {
-            //     params:{
-            //         payload: msgJson,
-            //         topic: topic
-            //     }
-            // })
-            //     .then(response => {})
-            //     .catch(error => console.error('Error sending heartbeat event', error));
+        
+          this.eventEmitter.emit('heartbeat', { payload:msgJson, topic:topic });
+
         }
     }
 
@@ -76,15 +75,14 @@ export class MqttProvider {
 
 
     parseHexPayload(byteString) {
-        // Assuming 'byteString' is a Node.js Buffer
-        const data = {
+        console.log(byteString)
+         const data = {
             timestamp: byteString.readUInt32BE(0),
             command: byteString.readUInt8(4),
             length: byteString.readUInt8(5)
         };
     
-        // Extract payload using the length (starting from byte 6)
-        const payload = byteString.slice(6, 6 + data.length);
+         const payload = byteString.slice(6, 6 + data.length);
     
         return {
             timestamp: data.timestamp,
@@ -93,4 +91,7 @@ export class MqttProvider {
             payload: payload
         };
     }
+
+
+    
 }

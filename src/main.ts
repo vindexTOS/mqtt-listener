@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import ensureDatabase from './libs/db-connection/db-connection';
 import { ValidationPipe } from '@nestjs/common';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
  async function bootstrap() {
 
    await ensureDatabase()
@@ -38,5 +39,7 @@ import { ValidationPipe } from '@nestjs/common';
 
    await app.listen(3000);
   console.log('NestJS application is running on http://localhost:3000');
+
+ 
 }
 bootstrap();
