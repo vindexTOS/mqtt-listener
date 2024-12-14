@@ -12,6 +12,7 @@ import { DeviceMessages } from './device/entities/device-messages.entity';
 import { Auth } from './auth/entities/auth.entity';
 import { MicroservicesModule } from './microservices/microservices.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { MqttHandlersModule } from './mqtt-handlers/mqtt-handlers.module';
  
 @Module({
   imports: [MqttModule,   AuthModule, DeviceModule  , 
@@ -27,7 +28,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
       database: 'mqtt-listener',
       entities: [Auth,Device, DeviceSettings, DeviceMessages   ],
       synchronize: true,
-    }), MicroservicesModule,
+    }), MicroservicesModule, MqttHandlersModule,
 
   ],
   controllers: [ ],

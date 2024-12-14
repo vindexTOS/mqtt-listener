@@ -48,7 +48,8 @@ export class DeviceSettings {
 
   @Column({ type: Number, default: 0, nullable: true })
   sim_card_number: number;
-
+  @Column({ type: Number, default: 0, nullable: true })
+  isBlocked: number;
   @CreateDateColumn()
   createdAt: Date;
 
@@ -59,3 +60,4 @@ export class DeviceSettings {
   @JoinColumn({ name: 'device_id' })
   device: Device ;  
 }
+ 
