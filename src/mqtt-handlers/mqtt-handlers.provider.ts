@@ -38,20 +38,8 @@ export class MqttHandlersProviders {
             device_id: device_id,
             payload: payload,
         };
-
-        const queryParams = new URLSearchParams(data).toString();
-
-        try {
-       
-            this.eventEmitter.emit('publishMessage', { data });
-
-            // const response = await axios.get(`http://localhost:3000/mqtt/general?${queryParams}`);
-            // return response.data;
-        } catch (error) {
-            console.error('Error publishing message:', error);
-            throw error;
-        }
-    }
+        this.eventEmitter.emit('publishMessage', { data });
+     }
 
 
 
@@ -81,6 +69,7 @@ export class MqttHandlersProviders {
 
 
 
-
-
+//   celular remote number call 
+//  sending device commands by calling 
+async accessRequestForCellularRemoteNumber(device:Device, data:any){}
 }

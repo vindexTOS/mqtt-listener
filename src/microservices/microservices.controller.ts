@@ -3,7 +3,8 @@ import { Controller } from '@nestjs/common';
 import { MicroservicesService } from './microservices.service';
 
 import { OnEvent } from '@nestjs/event-emitter';
-import { MqttPayload } from 'src/mqtt/mqtt.interface';
+import { MqttPayload } from 'src/mqtt/mqtt.provider';
+ 
 
 @Controller()
 export class MicroservicesController {

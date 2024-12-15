@@ -7,11 +7,12 @@ import { DeviceMessages } from './entities/device-messages.entity';
 import { Device } from './entities/device.entity';
 import { DeviceSettings } from './entities/device-settings.entity';
 import { MessagePattern } from '@nestjs/microservices';
+import { UnregisteredDevice } from './entities/device-unregistered.entity';
 
 @Injectable()
 export class DeviceService {
   constructor(
-    private readonly entityManager: EntityManager ) { }
+    private readonly entityManager: EntityManager) { }
 
 
 
@@ -180,5 +181,52 @@ export class DeviceService {
       throw new InternalServerErrorException(error.message);
     }
   }
+  //  unregisted device
 
+  async getUnregisteredDevices() {
+
+    try {
+
+
+      return { data: await this.entityManager.find(UnregisteredDevice) }
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+
+    }
+  }
+  async registerDevice(dev_id: string) {
+    try {
+      const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
+        where: {
+          dev_id
+        }
+      })
+      if (!unregisteredDevice) throw new NotFoundException("Device not found in unregistered devices ")
+
+      return await this.entityManager.transaction(async (transactionEntityManager) => {
+
+        const device = transactionEntityManager.create(Device, { dev_id, name: dev_id });
+        const savedDevice = await transactionEntityManager.save(device);
+
+
+        const newDeviceSettings = transactionEntityManager.create(DeviceSettings, {
+          device: savedDevice, soft_version: unregisteredDevice.soft_version, hardware_version: unregisteredDevice.hardware_version
+        });
+        await transactionEntityManager.save(newDeviceSettings);
+
+
+        const newDeviceMessage = transactionEntityManager.create(DeviceMessages, {
+          device: savedDevice,
+        });
+        await transactionEntityManager.save(newDeviceMessage);
+
+        return savedDevice;
+      });
+
+    } catch (error) {
+      if (error instanceof NotFoundException) throw new NotFoundException(error)
+      throw new InternalServerErrorException(error.message);
+
+    }
+  }
 }

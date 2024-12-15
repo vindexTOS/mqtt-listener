@@ -1,11 +1,11 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MqttHandlersProviders } from './mqtt-handlers.provider';
-import { MqttPayload } from 'src/mqtt/mqtt.interface';
-import { EntityManager } from 'typeorm';
+ import { EntityManager } from 'typeorm';
 import { DeviceSettings } from 'src/device/entities/device-settings.entity';
 import { Device } from 'src/device/entities/device.entity';
 import * as moment from 'moment-timezone';
 import { UnregisteredDevice } from 'src/device/entities/device-unregistered.entity';
+import { MqttPayload } from 'src/mqtt/mqtt.provider';
 
 @Injectable()
 export class MqttHandlersService   {

@@ -2,7 +2,7 @@ import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import * as mqtt from 'mqtt';
 import { MqttProvider } from './mqtt.provider';
 import { OnEvent } from '@nestjs/event-emitter';
-import { MqttPayload } from './mqtt.interface';
+ 
 import { messageCommandType } from 'src/mqtt-handlers/mqtt-handler.messages';
 type handlePublishMessageType = {
   data: { device_id: string, payload: messageCommandType }

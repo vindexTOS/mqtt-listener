@@ -1,15 +1,13 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { DeviceSettings } from 'src/device/entities/device-settings.entity';
-import { Device } from 'src/device/entities/device.entity';
-import { MqttPayload } from 'src/mqtt/mqtt.interface';
-import { EntityManager } from 'typeorm';
-import * as moment from 'moment-timezone';
+import { Injectable  } from '@nestjs/common';
+ 
+ 
+ 
 import { MqttHandlersService } from 'src/mqtt-handlers/mqtt-handlers.service';
+import { MqttPayload } from 'src/mqtt/mqtt.provider';
 @Injectable()
 export class MicroservicesService {
-    constructor(private readonly entityManager: EntityManager,private readonly mqttHandlerService:MqttHandlersService) { }
-    private readonly logger = new Logger(MicroservicesService.name);
-
+    constructor( private readonly mqttHandlerService:MqttHandlersService) { }
+ 
     async heartBeatHandler(data: MqttPayload): Promise<any> {
        return this.mqttHandlerService.heartBeatHandler(data)
     }

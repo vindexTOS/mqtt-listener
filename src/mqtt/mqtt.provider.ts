@@ -1,5 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+export interface MqttPayload {
+  payload:any,
+  topic:string 
+}
 
 
 @Injectable()
@@ -14,7 +18,7 @@ export class MqttProvider {
   setClientConnection(client: any) {
     this.clientConnection.set(client, client)
   }
-
+   
   TopicHandler(topic, message) {
     const msgJson: any = this.parseHexPayload(message);
 
