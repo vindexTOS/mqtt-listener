@@ -186,9 +186,11 @@ export class DeviceService {
   async getUnregisteredDevices() {
 
     try {
+   
 
-
-      return { data: await this.entityManager.find(UnregisteredDevice) }
+    
+      return { data: await this.entityManager.find(UnregisteredDevice )  };
+ 
     } catch (error) {
       throw new InternalServerErrorException(error.message);
 
@@ -219,14 +221,32 @@ export class DeviceService {
           device: savedDevice,
         });
         await transactionEntityManager.save(newDeviceMessage);
-
-        return savedDevice;
+        await transactionEntityManager.delete(UnregisteredDevice, { dev_id });      
+          return savedDevice;
       });
 
     } catch (error) {
       if (error instanceof NotFoundException) throw new NotFoundException(error)
       throw new InternalServerErrorException(error.message);
 
+    }
+  }
+
+  async deleteRegisteredDevice(dev_id:string){
+    try {
+      const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
+        where: {
+          dev_id
+        }
+      })
+      if (!unregisteredDevice) throw new NotFoundException("Device not found in unregistered devices ")
+
+        await this.entityManager.delete(UnregisteredDevice, {  dev_id  });  
+       
+        return {message:"unregistered device was deleted"}
+    } catch (error) {
+      if (error instanceof NotFoundException) throw new NotFoundException(error)
+        throw new InternalServerErrorException(error.message);
     }
   }
 }

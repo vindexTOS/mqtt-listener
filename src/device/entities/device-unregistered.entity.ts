@@ -2,6 +2,7 @@ import {
     Entity,
     Column,
     PrimaryGeneratedColumn,
+    CreateDateColumn,
  
   } from 'typeorm';
  
@@ -19,6 +20,7 @@ import {
   
     @Column({ type: String, nullable:true })
     hardware_version: string;
-  
+     @CreateDateColumn()
+      createdAt: Date;
   }
   

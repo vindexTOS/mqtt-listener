@@ -20,18 +20,36 @@ export class DeviceController {
   }
   
 
-  @Get(':id')
+  @Get('get-single/:id')
   async findOne(@Param('id') id: string) {
     return await this.deviceService.findOne(+id);
   }
 
-  @Patch(':id')
+  @Patch('update/:id')
   async update(@Param('id') id: string, @Body() updateDeviceDto: UpdateDeviceDto) {
     return this.deviceService.update(+id, updateDeviceDto);
   }
 
-  @Delete(':id')
+  @Delete('delete/:id')
  async remove(@Param('id') id: string) {
     return  await this.deviceService.remove(+id);
+  }
+
+ 
+  @Get("/unregistered")
+  async getUnregisteredDevices(){
+  return await this.deviceService.getUnregisteredDevices()
+ 
+  }
+
+  @Post("/registe/:dev_id")
+  async registerDevice(@Param("dev_id") dev_id:string){
+    return await this.deviceService.registerDevice(dev_id)
+       
+  }
+
+  @Delete("/delete-registered/:dev_id")
+  async deleteRegisteredDevice(@Param("dev_id") dev_id:string){
+    return await this.deviceService.deleteRegisteredDevice(dev_id)
   }
 }
