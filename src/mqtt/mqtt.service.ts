@@ -29,7 +29,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
 
 
-    this.client = mqtt.connect('mqtt://127.0.0.1', {
+    this.client = mqtt.connect('mqtt://18.199.175.44', {
       port: 1883
     });
 
