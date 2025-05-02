@@ -92,9 +92,9 @@ export class MqttProvider {
       };
     }
   
-     if (byteString.length < 6) {
-      throw new Error('Invalid payload length: expected at least 6 bytes');
-    }
+    //  if (byteString.length < 6) {
+    //   throw new Error('Invalid payload length: expected at least 6 bytes');
+    // }
   
     const data = {
       timestamp: byteString.readUInt32BE(0),
