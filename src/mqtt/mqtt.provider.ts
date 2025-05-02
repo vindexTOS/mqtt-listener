@@ -22,7 +22,7 @@ export class MqttProvider {
   TopicHandler(topic, message) {
     const msgJson: any = this.parseHexPayload(message);
 
-    if (topic.match(/Lift\/[^\/]+\/events\/general/)) {
+    if (topic.match(/Locker\/[^\/]+\/events\/general/)) {
       if (msgJson.command === 1) {
 
       }
@@ -35,7 +35,7 @@ export class MqttProvider {
       }
       this.eventEmitter.emit('generalEventHandler', { payload: msgJson, topic: topic });
 
-    } else if (topic.match(/Lift\/[^\/]+\/events\/heartbeat/)) {
+    } else if (topic.match(/Locker\/[^\/]+\/events\/heartbeat/)) {
 
       this.eventEmitter.emit('heartBeatHandler', { payload: msgJson, topic: topic });
 
@@ -79,16 +79,31 @@ export class MqttProvider {
 
 
 
-  parseHexPayload(byteString) {
-    console.log(byteString)
+  parseHexPayload(byteString: Buffer) {
+    console.log('Raw Payload:', byteString);
+  
+     if (byteString.length === 2) {
+      return {
+        isHeartbeat: true,
+        command: 0xFF,  
+        networkType: byteString.readUInt8(0),
+        signalStrength: byteString.readUInt8(1),
+        payload: byteString
+      };
+    }
+  
+     if (byteString.length < 6) {
+      throw new Error('Invalid payload length: expected at least 6 bytes');
+    }
+  
     const data = {
       timestamp: byteString.readUInt32BE(0),
       command: byteString.readUInt8(4),
       length: byteString.readUInt8(5)
     };
-
+  
     const payload = byteString.slice(6, 6 + data.length);
-
+  
     return {
       timestamp: data.timestamp,
       command: data.command,

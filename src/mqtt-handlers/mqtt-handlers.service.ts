@@ -14,6 +14,7 @@ export class MqttHandlersService   {
     }
     private readonly logger = new Logger(MqttHandlersService.name);
     async heartBeatHandler(data: MqttPayload): Promise<any> {
+        console.log("CREAZYINESS")
         const { payload, topic } = data;
         const bufferPayload = payload.payload
         const network = bufferPayload[0];
@@ -32,10 +33,11 @@ export class MqttHandlersService   {
         }
 
         const deviceSettings = await this.entityManager.findOne(DeviceSettings, { where: { device: { id: device.id } } })
+ 
         device.last_beat = moment().tz('Asia/Tbilisi').toDate();
         deviceSettings.network = network;
         deviceSettings.signal = signal;
-
+        console.log( device.last_beat )
 
         await this.entityManager.save(Device, device);
         await this.entityManager.save(DeviceSettings, deviceSettings);
@@ -54,15 +56,19 @@ export class MqttHandlersService   {
         });
 
         if (device) {
+            console.log("🤑🤑🤑🤑🤑🤑🤑🤑")
             this.logger.log("Device found " + " device Id: " + dev_id + " general event")
             const deviceSettings = await this.entityManager.findOne(DeviceSettings, { where: { device: { id: device.id } } })
             if (deviceSettings.isBlocked) {
+                console.log("🤑🤑🤑🤑🤑🤑🤑")
                 this.mqttHandlers.handlePublishMessage("NoServiceMessage", dev_id)
             } else {
+                console.log("🤑🤑🤑🤑🤑🤑")
                 this.mqttHandlers.callToNeededFunction(device, dev_id)
                 device.last_beat = moment().tz('Asia/Tbilisi').toDate();
                 await this.entityManager.save(Device, device);
             }
+            console.log("🤑🤑🤑🤑🤑")
         } else {
             this.mqttHandlers.handlePublishMessage("DeviceNotInSystem", dev_id)
             const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
@@ -70,23 +76,31 @@ export class MqttHandlersService   {
                     dev_id
                 }
             })
-
+            console.log("🤑🤑🤑🤑")
             if (!unregisteredDevice) {
+             
+
+             
                 const newDevice = this.entityManager.create(UnregisteredDevice, {
                     dev_id,
+                    soft_version: "0.0.0",
+                    hardware_version:"0.0.0"
+                    
                 });
-
+                console.log("🤑🤑🤑")
                 if (payload.command === 253) {
-                    const hardware_version = payload.payload.substring(0, 3);
-                    const soft_version = payload.payload.substring(3, 6);
+                    console.log("🤑🤑")
+                    const hardware_version = payload?.payload?.substring(0, 3);
+                    const soft_version = payload?.payload?.substring(3, 6);
 
-                    newDevice.hardware_version = hardware_version;
-                    newDevice.soft_version = soft_version;
+                    newDevice.hardware_version = hardware_version ?  hardware_version : "0.0";
+                    newDevice.soft_version = soft_version ? soft_version : "0.0";
                 }
 
                 await this.entityManager.save(newDevice);
             }
             if (payload.command === 253 && unregisteredDevice) {
+                console.log("🤑")
                 unregisteredDevice.hardware_version = payload.payload.substring(0, 3);
                 unregisteredDevice.soft_version = payload.payload.substring(3, 6);
                 await this.entityManager.save(unregisteredDevice);

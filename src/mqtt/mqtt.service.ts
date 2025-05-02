@@ -21,15 +21,15 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   }
 
   private client: any;
-  generalTopic = 'Lift/+/events/general';
-  heartbeatTopic = 'Lift/+/events/heartbeat';
+  generalTopic = 'Locker/+/events/general';
+  heartbeatTopic = 'Locker/+/events/heartbeat';
 
 
   onModuleInit() {
 
 
 
-    this.client = mqtt.connect('mqtt://18.199.175.44', {
+    this.client = mqtt.connect('mqtt://localhost', {
       port: 1883
     });
 
@@ -55,6 +55,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
 
     this.client.on('message', (topic, message) => {
+
       this.mqttProvider.TopicHandler(topic, message)
 
 
@@ -79,7 +80,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   }
 
   publishMessage(device_id, payload) {
-    const topic = `Lift/${device_id}/commands/general`;
+    const topic = `Locker/${device_id}/commands/general`;
     console.log(topic)
 
     this.client.publish(topic, payload, { qos: 1 }, (err) => {
