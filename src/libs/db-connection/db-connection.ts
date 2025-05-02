@@ -4,8 +4,8 @@ async function ensureDatabase() {
     const connection = await createConnection({
       host: 'localhost',
       port: 3306,
-      user: 'root',
-      password: '258741',
+      user: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
     });
   
     const databaseName = 'mqtt-listener';

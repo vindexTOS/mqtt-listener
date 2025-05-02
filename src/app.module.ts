@@ -12,7 +12,8 @@ import { Auth } from './auth/entities/auth.entity';
 import { MicroservicesModule } from './microservices/microservices.module';
  import { MqttHandlersModule } from './mqtt-handlers/mqtt-handlers.module';
 import { UnregisteredDevice } from './device/entities/device-unregistered.entity';
- 
+import * as dotenv from 'dotenv';
+dotenv.config();
 @Module({
   imports: [MqttModule, AuthModule, DeviceModule  ,  
 
@@ -22,8 +23,8 @@ import { UnregisteredDevice } from './device/entities/device-unregistered.entity
       type: 'mysql',
       host: 'localhost',
       port: 3306,
-      username: 'root',
-      password: '258741',
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
       database: 'mqtt-listener',
       entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice ],
       synchronize: true,
