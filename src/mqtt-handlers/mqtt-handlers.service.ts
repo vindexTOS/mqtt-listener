@@ -14,7 +14,7 @@ export class MqttHandlersService   {
     }
     private readonly logger = new Logger(MqttHandlersService.name);
     async heartBeatHandler(data: MqttPayload): Promise<any> {
-        console.log("CREAZYINESS")
+  
         const { payload, topic } = data;
         const bufferPayload = payload.payload
         const network = bufferPayload[0];
@@ -56,19 +56,18 @@ export class MqttHandlersService   {
         });
 
         if (device) {
-            console.log("🤑🤑🤑🤑🤑🤑🤑🤑")
+    
             this.logger.log("Device found " + " device Id: " + dev_id + " general event")
             const deviceSettings = await this.entityManager.findOne(DeviceSettings, { where: { device: { id: device.id } } })
             if (deviceSettings.isBlocked) {
-                console.log("🤑🤑🤑🤑🤑🤑🤑")
+      
                 this.mqttHandlers.handlePublishMessage("NoServiceMessage", dev_id)
             } else {
-                console.log("🤑🤑🤑🤑🤑🤑")
-                this.mqttHandlers.callToNeededFunction(device, dev_id)
+                 this.mqttHandlers.callToNeededFunction(device, dev_id)
                 device.last_beat = moment().tz('Asia/Tbilisi').toDate();
                 await this.entityManager.save(Device, device);
             }
-            console.log("🤑🤑🤑🤑🤑")
+         
         } else {
             this.mqttHandlers.handlePublishMessage("DeviceNotInSystem", dev_id)
             const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
@@ -76,7 +75,7 @@ export class MqttHandlersService   {
                     dev_id
                 }
             })
-            console.log("🤑🤑🤑🤑")
+      
             if (!unregisteredDevice) {
              
 
@@ -87,9 +86,9 @@ export class MqttHandlersService   {
                     hardware_version:"0.0.0"
                     
                 });
-                console.log("🤑🤑🤑")
+           
                 if (payload.command === 253) {
-                    console.log("🤑🤑")
+                 
                     const hardware_version = payload?.payload?.substring(0, 3);
                     const soft_version = payload?.payload?.substring(3, 6);
 
@@ -100,7 +99,7 @@ export class MqttHandlersService   {
                 await this.entityManager.save(newDevice);
             }
             if (payload.command === 253 && unregisteredDevice) {
-                console.log("🤑")
+            
                 unregisteredDevice.hardware_version = payload.payload.substring(0, 3);
                 unregisteredDevice.soft_version = payload.payload.substring(3, 6);
                 await this.entityManager.save(unregisteredDevice);

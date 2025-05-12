@@ -30,7 +30,10 @@ import { DeviceMessages } from './device-messages.entity';
 
     @Column({ type: Date , nullable:true})
     last_beat: Date;
-  
+
+    @Column({ type: 'varchar', nullable: true })
+    password: string;
+
     @OneToOne(() => DeviceSettings, (settings) => settings.device, { cascade: true })
     @JoinColumn()
     settings: DeviceSettings;

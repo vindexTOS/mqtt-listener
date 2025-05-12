@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { DeviceNotInSystem, messageCommandKeyValueType, NoServiceMessage } from './mqtt-handler.messages';
+import { CreateDevice, DeviceNotInSystem, messageCommandKeyValueType, NoServiceMessage, PasswordCommand } from './mqtt-handler.messages';
 import { Device } from 'src/device/entities/device.entity';
 import { EventEmitter2  } from '@nestjs/event-emitter';
 
@@ -8,7 +8,7 @@ export class MqttHandlersProviders {
     // publish message 
     constructor(    private readonly eventEmitter: EventEmitter2
     ){}
-    handlePublishMessage(typeName: string, dev_id: string) {
+    handlePublishMessage(typeName: string, dev_id: string, passedPayload?:any) {
         switch (typeName) {
             case "NoServiceMessage": {
              
@@ -20,6 +20,18 @@ export class MqttHandlersProviders {
                 const payload = this.generateHexPayload(NoServiceMessage.command, NoServiceMessage.payload)
                 return this.publishMessage(dev_id, payload)
             }
+            case "RegisterDevice": {
+                const CreateDevicePayload = CreateDevice(passedPayload.md5Hash)
+                const payload = this.generateHexPayload(CreateDevicePayload.command,CreateDevicePayload.payload )
+                return this.publishMessage(dev_id, payload)
+
+            }
+            case "SetPassword": {
+             
+                const commandPayload = PasswordCommand(passedPayload );
+                const payload = this.generateHexPayload(commandPayload.command, commandPayload.payload);
+                return this.publishMessage(dev_id, payload);
+              }
         }
     }
 
@@ -38,6 +50,7 @@ export class MqttHandlersProviders {
             device_id: device_id,
             payload: payload,
         };
+     
         this.eventEmitter.emit('publishMessage', { data });
      }
 

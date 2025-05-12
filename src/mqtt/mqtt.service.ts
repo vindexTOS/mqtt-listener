@@ -81,7 +81,11 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
   publishMessage(device_id, payload) {
     const topic = `Locker/${device_id}/commands/general`;
-    console.log(topic)
+  console.log('📡 Publishing to MQTT topic:', topic);
+  console.log('🧾 Raw Payload Buffer:', payload);
+  console.log('🧾 Payload as HEX:', payload.toString('hex'));
+  console.log('🧾 Payload as UTF-8 (decoded):', payload.toString('utf8'));
+  // 🔍 LOGGING ENDS HERE
 
     this.client.publish(topic, payload, { qos: 1 }, (err) => {
       if (err) {

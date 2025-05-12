@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,48 +12,66 @@ import { Device } from './entities/device.entity';
 import { DeviceSettings } from './entities/device-settings.entity';
 import { MessagePattern } from '@nestjs/microservices';
 import { UnregisteredDevice } from './entities/device-unregistered.entity';
-
+import * as crypto from 'crypto';
+import { MqttHandlersProviders } from 'src/mqtt-handlers/mqtt-handlers.provider';
 @Injectable()
 export class DeviceService {
   constructor(
-    private readonly entityManager: EntityManager) { }
-
-
+    private readonly entityManager: EntityManager,
+    private readonly mqttHandlerProvider: MqttHandlersProviders,
+  ) {}
 
   async create(createDeviceDto: CreateDeviceDto) {
-    const { dev_id, name } = createDeviceDto;
+    const { dev_id, name  } = createDeviceDto;
     try {
+      return await this.entityManager.transaction(
+        async (transactionEntityManager) => {
+          const plainPassword = crypto.randomBytes(12).toString("hex");
+          const md5Hash = crypto
+            .createHash('md5')
+            .update(plainPassword)
+            .digest('hex');
+          const device = transactionEntityManager.create(Device, {
+            dev_id,
+            name,
+            password:md5Hash,
+          });
+          const savedDevice = await transactionEntityManager.save(device);
+          // sending message to device
+          await this.mqttHandlerProvider.handlePublishMessage(
+            'SetPassword',
+            dev_id,
+            md5Hash,
+          );
 
+          const newDeviceSettings = transactionEntityManager.create(
+            DeviceSettings,
+            {
+              device: savedDevice,
+            },
+          );
+          await transactionEntityManager.save(newDeviceSettings);
 
-      return await this.entityManager.transaction(async (transactionEntityManager) => {
+          const newDeviceMessage = transactionEntityManager.create(
+            DeviceMessages,
+            {
+              device: savedDevice,
+            },
+          );
+          await transactionEntityManager.save(newDeviceMessage);
 
-        const device = transactionEntityManager.create(Device, { dev_id, name });
-        const savedDevice = await transactionEntityManager.save(device);
-
-
-        const newDeviceSettings = transactionEntityManager.create(DeviceSettings, {
-          device: savedDevice,
-        });
-        await transactionEntityManager.save(newDeviceSettings);
-
-
-        const newDeviceMessage = transactionEntityManager.create(DeviceMessages, {
-          device: savedDevice,
-        });
-        await transactionEntityManager.save(newDeviceMessage);
-
-        return savedDevice;
-      });
-
+          return savedDevice;
+        },
+      );
     } catch (error) {
-      throw new InternalServerErrorException(error)
+      console.log(error)
+      throw new InternalServerErrorException(error);
     }
   }
 
   async findAll(query: any) {
     try {
       const { name, dev_id, id, sort } = query;
-
 
       const qb = this.entityManager.createQueryBuilder(Device, 'device');
 
@@ -64,7 +86,6 @@ export class DeviceService {
       if (id) {
         qb.andWhere('device.id = :id', { id });
       }
-
 
       if (sort) {
         const order = sort.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
@@ -161,7 +182,6 @@ export class DeviceService {
 
   async remove(id: number) {
     try {
-
       const device = await this.entityManager.findOne(Device, {
         where: { id },
       });
@@ -173,7 +193,6 @@ export class DeviceService {
       await this.entityManager.delete(DeviceSettings, { device: { id } });
       await this.entityManager.delete(DeviceMessages, { device: { id } });
 
-
       await this.entityManager.delete(Device, id);
 
       return { message: `Device with ID ${id} has been removed successfully.` };
@@ -184,69 +203,85 @@ export class DeviceService {
   //  unregisted device
 
   async getUnregisteredDevices() {
-
     try {
-   
-
-    
-      return { data: await this.entityManager.find(UnregisteredDevice )  };
- 
+      return { data: await this.entityManager.find(UnregisteredDevice) };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
-
     }
   }
   async registerDevice(dev_id: string) {
     try {
-      const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
-        where: {
-          dev_id
-        }
-      })
-      if (!unregisteredDevice) throw new NotFoundException("Device not found in unregistered devices ")
+      const unregisteredDevice = await this.entityManager.findOne(
+        UnregisteredDevice,
+        {
+          where: {
+            dev_id,
+          },
+        },
+      );
+      if (!unregisteredDevice)
+        throw new NotFoundException(
+          'Device not found in unregistered devices ',
+        );
 
-      return await this.entityManager.transaction(async (transactionEntityManager) => {
+      return await this.entityManager.transaction(
+        async (transactionEntityManager) => {
+          const device = transactionEntityManager.create(Device, {
+            dev_id,
+            name: dev_id,
+          });
+          const savedDevice = await transactionEntityManager.save(device);
 
-        const device = transactionEntityManager.create(Device, { dev_id, name: dev_id });
-        const savedDevice = await transactionEntityManager.save(device);
+          const newDeviceSettings = transactionEntityManager.create(
+            DeviceSettings,
+            {
+              device: savedDevice,
+              soft_version: unregisteredDevice.soft_version,
+              hardware_version: unregisteredDevice.hardware_version,
+            },
+          );
+          await transactionEntityManager.save(newDeviceSettings);
 
-
-        const newDeviceSettings = transactionEntityManager.create(DeviceSettings, {
-          device: savedDevice, soft_version: unregisteredDevice.soft_version, hardware_version: unregisteredDevice.hardware_version
-        });
-        await transactionEntityManager.save(newDeviceSettings);
-
-
-        const newDeviceMessage = transactionEntityManager.create(DeviceMessages, {
-          device: savedDevice,
-        });
-        await transactionEntityManager.save(newDeviceMessage);
-        await transactionEntityManager.delete(UnregisteredDevice, { dev_id });      
+          const newDeviceMessage = transactionEntityManager.create(
+            DeviceMessages,
+            {
+              device: savedDevice,
+            },
+          );
+          await transactionEntityManager.save(newDeviceMessage);
+          await transactionEntityManager.delete(UnregisteredDevice, { dev_id });
           return savedDevice;
-      });
-
+        },
+      );
     } catch (error) {
-      if (error instanceof NotFoundException) throw new NotFoundException(error)
+      if (error instanceof NotFoundException)
+        throw new NotFoundException(error);
       throw new InternalServerErrorException(error.message);
-
     }
   }
 
-  async deleteRegisteredDevice(dev_id:string){
+  async deleteRegisteredDevice(dev_id: string) {
     try {
-      const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
-        where: {
-          dev_id
-        }
-      })
-      if (!unregisteredDevice) throw new NotFoundException("Device not found in unregistered devices ")
+      const unregisteredDevice = await this.entityManager.findOne(
+        UnregisteredDevice,
+        {
+          where: {
+            dev_id,
+          },
+        },
+      );
+      if (!unregisteredDevice)
+        throw new NotFoundException(
+          'Device not found in unregistered devices ',
+        );
 
-        await this.entityManager.delete(UnregisteredDevice, {  dev_id  });  
-       
-        return {message:"unregistered device was deleted"}
+      await this.entityManager.delete(UnregisteredDevice, { dev_id });
+
+      return { message: 'unregistered device was deleted' };
     } catch (error) {
-      if (error instanceof NotFoundException) throw new NotFoundException(error)
-        throw new InternalServerErrorException(error.message);
+      if (error instanceof NotFoundException)
+        throw new NotFoundException(error);
+      throw new InternalServerErrorException(error.message);
     }
   }
 }

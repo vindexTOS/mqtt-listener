@@ -5,6 +5,8 @@ export class CreateDeviceDto {
     readonly dev_id: string;
     @IsString()
     readonly name: string
+    // @IsString()
+    // readonly password: string
 
 
 }
