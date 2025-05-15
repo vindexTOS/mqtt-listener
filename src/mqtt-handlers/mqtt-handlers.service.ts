@@ -49,7 +49,7 @@ export class MqttHandlersService   {
         const { payload, topic } = data
 
         const dev_id = topic.split('/')[1];
-        this.mqttHandlers.handlePublishMessage("DeviceNotInSystem", dev_id)
+       
 
         const device = await this.entityManager.findOne(Device, {
             where: { dev_id },
@@ -61,16 +61,14 @@ export class MqttHandlersService   {
             const deviceSettings = await this.entityManager.findOne(DeviceSettings, { where: { device: { id: device.id } } })
             if (deviceSettings.isBlocked) {
       
-                this.mqttHandlers.handlePublishMessage("NoServiceMessage", dev_id)
-            } else {
+             } else {
                  this.mqttHandlers.callToNeededFunction(device, dev_id)
                 device.last_beat = moment().tz('Asia/Tbilisi').toDate();
                 await this.entityManager.save(Device, device);
             }
          
         } else {
-            this.mqttHandlers.handlePublishMessage("DeviceNotInSystem", dev_id)
-            const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
+             const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
                 where: {
                     dev_id
                 }

@@ -38,11 +38,7 @@ export class DeviceService {
           });
           const savedDevice = await transactionEntityManager.save(device);
           // sending message to device
-          await this.mqttHandlerProvider.handlePublishMessage(
-            'SetPassword',
-            dev_id,
-            md5Hash,
-          );
+       
 
           const newDeviceSettings = transactionEntityManager.create(
             DeviceSettings,

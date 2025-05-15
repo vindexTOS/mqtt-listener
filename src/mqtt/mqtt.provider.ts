@@ -43,55 +43,50 @@ export class MqttProvider {
   }
 
   generateHexPayload(command, payload = []) {
-    const commandBuffer = Buffer.alloc(5); // 4 bytes timestamp + 1 byte command
-    commandBuffer.writeUInt32LE(Math.floor(Date.now() / 1000), 0);
-    commandBuffer.writeUInt8(command, 4);
+    const commandBuffer = Buffer.alloc(5); // 4 bytes for timestamp, 1 byte for command
+    commandBuffer.writeUInt32LE(Math.floor(Date.now() / 1000), 0); // Write timestamp
+    commandBuffer.writeUInt8(command, 4); // Write command
 
-    const payloadBufferList = [];
+    let payloadBufferList = [];
 
-    for (const item of payload) {
+    for (const key in payload) {
+        const item = payload[key];
         switch (item.type) {
             case 'string':
                 payloadBufferList.push(Buffer.from(item.value, 'utf8'));
                 break;
             case 'timestamp':
-              console.log("timestamp")
                 const timeBuffer = Buffer.alloc(4);
                 timeBuffer.writeUInt32LE(item.value, 0);
                 payloadBufferList.push(timeBuffer);
                 break;
             case 'number':
-              console.log(" 0")
+
                 const numBuffer = Buffer.alloc(1);
                 numBuffer.writeUInt8(item.value, 0);
+                console.log(numBuffer)
                 payloadBufferList.push(numBuffer);
                 break;
             case 'number16':
-              console.log("16")
-
                 const num16Buffer = Buffer.alloc(2);
                 num16Buffer.writeUInt16LE(item.value, 0);
                 payloadBufferList.push(num16Buffer);
                 break;
             case 'number32':
-              console.log("32")
-                const num32Buffer = Buffer.alloc(4);
-                num32Buffer.writeUInt32LE(item.value, 0);
-                payloadBufferList.push(num32Buffer);
+                const num32Buf = Buffer.alloc(4);
+                num32Buf.writeUInt32LE(item.value, 0);
+                payloadBufferList.push(num32Buf);
                 break;
-            case 'buffer':
-              console.log("buffer")
 
-                payloadBufferList.push(item.value); // raw Buffer
-                break;
         }
     }
 
-    const payloadData = Buffer.concat(payloadBufferList);
-    const payloadLength = Buffer.alloc(1);
-    payloadLength.writeUInt8(payloadData.length, 0); // 1 byte length
+    const payloadSize = Buffer.alloc(1);
+    const totalPayloadLength = payloadBufferList.reduce((acc, curr) => acc + curr.length, 0);
+    payloadSize.writeUInt8(totalPayloadLength, 0);
+    payloadBufferList.unshift(payloadSize);
 
-    return Buffer.concat([commandBuffer, payloadLength, payloadData]);
+    return Buffer.concat([commandBuffer, ...payloadBufferList]);
 }
 
 
