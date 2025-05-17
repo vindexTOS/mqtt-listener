@@ -148,17 +148,10 @@ export class DeviceService {
       device.name = updateDeviceDto.name;
 
       if (settings) {
-        settings.relay_pulse_time = updateDeviceDto.relay_pulse_time;
-        settings.lcd_brightness = updateDeviceDto.lcd_brightness;
-        settings.led_brightness = updateDeviceDto.led_brightness;
-        settings.msg_appear_time = updateDeviceDto.msg_appear_time;
-        settings.storage_disable = updateDeviceDto.storage_disable;
-        settings.relay1_node = updateDeviceDto.relay1_node;
-        settings.op_mode = updateDeviceDto.op_mode;
+  
         settings.soft_version = updateDeviceDto.soft_version;
         settings.hardware_version = updateDeviceDto.hardware_version;
-        settings.limit = updateDeviceDto.limit;
-        settings.network = updateDeviceDto.network;
+         settings.network = updateDeviceDto.network;
         settings.signal = updateDeviceDto.signal;
 
         await this.entityManager.save(DeviceSettings, settings);

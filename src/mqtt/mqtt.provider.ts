@@ -21,31 +21,46 @@ export class MqttProvider {
    
   TopicHandler(topic, message) {
     const msgJson: any = this.parseHexPayload(message);
-
+  
     if (topic.match(/Locker\/[^\/]+\/events\/general/)) {
+      
       if (msgJson.command === 1) {
-
+        // TODO: handle command 1
       }
-      if (msgJson.command === 4) {
+  
+      if (msgJson.command === 3) {
+        console.log("COMMAND 3 ")
         const payload = Buffer.from(msgJson.payload, 'binary');
-        msgJson.amount = payload.readUInt16BE(0)
-        msgJson.card = payload.toString('utf8', 2, 10)
-
-
+        if (payload.length === 4) {
+          msgJson.lockerStatus = payload[0];      // 0 = free, 1 = busy
+          msgJson.lockerCharging = payload[1];    // 0 = idle, 1 = charging
+          msgJson.lockerDoor = payload[2];        // 0 = closed, 1 = opened
+          msgJson.paymentOption = payload[3];     // 0 = idle, 1-4 = payment options
+        } else {
+          console.warn(`Invalid payload length for command 3: expected 4 bytes, got ${payload.length}`);
+        }
       }
+  
+      if (msgJson.command === 4) {
+        const payload = Buffer.from(msgJson.payload);
+        const alarmByte = payload[0];
+        console.log(msgJson.payload)
+        msgJson.alarms = alarmByte
+      
+        console.log("🚨 Alarm Event:", msgJson.alarms);
+      }
+  
       this.eventEmitter.emit('generalEventHandler', { payload: msgJson, topic: topic });
-
+  
     } else if (topic.match(/Locker\/[^\/]+\/events\/heartbeat/)) {
-
       this.eventEmitter.emit('heartBeatHandler', { payload: msgJson, topic: topic });
-
     }
   }
 
   generateHexPayload(command, payload = []) {
     const commandBuffer = Buffer.alloc(5); // 4 bytes for timestamp, 1 byte for command
     commandBuffer.writeUInt32LE(Math.floor(Date.now() / 1000), 0); // Write timestamp
-    commandBuffer.writeUInt8(command, 4); // Write command
+    commandBuffer.writeUInt8(command, 4); 
 
     let payloadBufferList = [];
 
@@ -91,40 +106,25 @@ export class MqttProvider {
 
 
 
-
-
-  parseHexPayload(byteString: Buffer) {
  
-  
-     if (byteString.length === 2) {
-      return {
-        isHeartbeat: true,
-        command: 0xFF,  
-        networkType: byteString.readUInt8(0),
-        signalStrength: byteString.readUInt8(1),
-        payload: byteString
-      };
-    }
-  
-    //  if (byteString.length < 6) {
-    //   throw new Error('Invalid payload length: expected at least 6 bytes');
-    // }
-  
-    const data = {
+parseHexPayload(byteString) {
+  // Assuming 'byteString' is a Node.js Buffer
+  const data = {
       timestamp: byteString.readUInt32BE(0),
       command: byteString.readUInt8(4),
       length: byteString.readUInt8(5)
-    };
-  
-    const payload = byteString.slice(6, 6 + data.length);
-  
-    return {
+  };
+
+  // Extract payload using the length (starting from byte 6)
+  const payload = byteString.slice(6, 6 + data.length);
+
+  return {
       timestamp: data.timestamp,
       command: data.command,
       length: data.length,
       payload: payload
-    };
-  }
+  };
+}
 
 
 

@@ -46,66 +46,95 @@ export class MqttHandlersService   {
 
 
     async generalEventHandler(data: MqttPayload) {
-        const { payload, topic } = data
-
+        const { payload, topic } = data;
         const dev_id = topic.split('/')[1];
+      
        
-
-        const device = await this.entityManager.findOne(Device, {
-            where: { dev_id },
-        });
-
+        const device = await this.entityManager.findOne(Device, { where: { dev_id } });
+       
         if (device) {
-    
-            this.logger.log("Device found " + " device Id: " + dev_id + " general event")
-            const deviceSettings = await this.entityManager.findOne(DeviceSettings, { where: { device: { id: device.id } } })
-            if (deviceSettings.isBlocked) {
-      
-             } else {
-                 this.mqttHandlers.callToNeededFunction(device, dev_id)
-                device.last_beat = moment().tz('Asia/Tbilisi').toDate();
-                await this.entityManager.save(Device, device);
-            }
-         
+          await this.handleRegisteredDevice(device, dev_id, payload);
         } else {
-             const unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
-                where: {
-                    dev_id
-                }
-            })
+          await this.handleUnregisteredDevice(dev_id, payload);
+        }
       
-            if (!unregisteredDevice) {
-             
+        return { message: "General event processed" };
+      }
+      
+      private async handleRegisteredDevice(device: Device, dev_id: string, payload:any) {
+        console.log(payload.command, "LIVER")
+      
+        const deviceSettings = await this.entityManager.findOne(DeviceSettings, {
+          where: { device: { id: device.id } },
+        });
+ 
 
-             
-                const newDevice = this.entityManager.create(UnregisteredDevice, {
-                    dev_id,
-                    soft_version: "0.0.0",
-                    hardware_version:"0.0.0"
-                    
-                });
-           
-                if (payload.command === 253) {
-                 
-                    const hardware_version = payload?.payload?.substring(0, 3);
-                    const soft_version = payload?.payload?.substring(3, 6);
+        if(!deviceSettings.isBlocked && payload.command == 4){
+            device.last_beat = moment().tz('Asia/Tbilisi').toDate();
+            console.log(payload)
+            // deviceSettings.Alarm = payload.paymentOption
+            await this.entityManager.save(DeviceSettings, deviceSettings);
+            await this.entityManager.save(Device, device);
+        }
 
-                    newDevice.hardware_version = hardware_version ?  hardware_version : "0.0";
-                    newDevice.soft_version = soft_version ? soft_version : "0.0";
-                }
-
-                await this.entityManager.save(newDevice);
-            }
-            if (payload.command === 253 && unregisteredDevice) {
-            
-                unregisteredDevice.hardware_version = payload.payload.substring(0, 3);
-                unregisteredDevice.soft_version = payload.payload.substring(3, 6);
-                await this.entityManager.save(unregisteredDevice);
-            }
+        if (!deviceSettings.isBlocked && payload.command == 3) {
+          this.mqttHandlers.callToNeededFunction(device, dev_id);
+          device.last_beat = moment().tz('Asia/Tbilisi').toDate();
+          deviceSettings.Lockerstatus = Boolean(payload.lockerStatus) 
+          deviceSettings.IsOpen = Boolean(payload.lockerDoor) 
+          deviceSettings.IsCharging = Boolean(payload.lockerCharging) 
+          deviceSettings.PaymentOptions = payload.paymentOption
+          await this.entityManager.save(DeviceSettings, deviceSettings);
+          await this.entityManager.save(Device, device);
         }
 
 
-        return { "message": "General event processed" }
-    }
-
+      
+      }
+      
+      private async handleUnregisteredDevice(dev_id: string, payload: any) {
+        let unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
+          where: { dev_id },
+        });
+      
+        switch (payload.command) {
+          case 253:
+            await this.registerOrUpdateUnregisteredDevice(unregisteredDevice, dev_id, payload);
+            break;
+      
+          default:
+            if (!unregisteredDevice) {
+              const newDevice = this.entityManager.create(UnregisteredDevice, {
+                dev_id,
+                soft_version: "0.0.0",
+                hardware_version: "0.0.0",
+              });
+              await this.entityManager.save(newDevice);
+            }
+            break;
+        }
+      }
+      
+      private async registerOrUpdateUnregisteredDevice(
+        unregisteredDevice: UnregisteredDevice | null,
+        dev_id: string,
+        payload: any,
+      ) {
+        const hardware_version = payload?.payload?.substring(0, 3) || "0.0";
+        const soft_version = payload?.payload?.substring(3, 6) || "0.0";
+      
+        if (unregisteredDevice) {
+          unregisteredDevice.hardware_version = hardware_version;
+          unregisteredDevice.soft_version = soft_version;
+          await this.entityManager.save(unregisteredDevice);
+        } else {
+          const newDevice = this.entityManager.create(UnregisteredDevice, {
+            dev_id,
+            hardware_version,
+            soft_version,
+          });
+          await this.entityManager.save(newDevice);
+        }
+      }
+      
 }

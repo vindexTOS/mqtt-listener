@@ -1,44 +1,48 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToOne, CreateDateColumn, UpdateDateColumn, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  OneToOne,
+  CreateDateColumn,
+  UpdateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 import { Device } from './device.entity';
 import { ForeignKeyMetadata } from 'typeorm/metadata/ForeignKeyMetadata';
-
+enum AlarmEnum {
+    "No Alarm" = 0 ,
+    "Tilted Sensor" = 1,
+    "Door Sensor" = 2 ,
+    "Battery Low Voltage" = 4,
+    "Battery Extremely Low (Shutdown)" = 8 
+}
 @Entity()
 export class DeviceSettings {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: Number, default: 5, nullable: true })
-  relay_pulse_time: number;
+  @Column({ type: Boolean, default: false, nullable: true })
+  Lockerstatus: Boolean;
 
-  @Column({ type: Number, default: 50, nullable: true })
-  lcd_brightness: number;
+  @Column({ type: Boolean, default: false, nullable: true })
+  IsCharging: Boolean;
 
-  @Column({ type: Number, default: 50, nullable: true })
-  led_brightness: number;
-
-  @Column({ type: Number, default: 5, nullable: true })
-  msg_appear_time: number;
-
-  @Column({ type: Number, default: 5, nullable: true })
-  card_read_delay: number;
+  @Column({ type: Boolean, default: false, nullable: true })
+  IsOpen: Boolean;
 
   @Column({ type: Number, default: 0, nullable: true })
-  storage_disable: 0 | 1;
+  PaymentOptions: number;
 
-  @Column({ type: Number, default: 0, nullable: true })
-  relay1_node: 0 | 1;
 
-  @Column({ type: Number, default: 0, nullable: true })
-  op_mode: 0 | 1;
+  @Column({ type:Number, default:0 })
+  Alarm:string
 
+  
   @Column({ type: String, default: '100' })
   soft_version: string;
 
   @Column({ type: String, default: '02A', nullable: true })
   hardware_version: string;
-
-  @Column({ type: Number, default: 5, nullable: true })
-  limit: number;
 
   @Column({ type: Number, default: 2, nullable: true })
   network: number;
@@ -55,9 +59,8 @@ export class DeviceSettings {
 
   @UpdateDateColumn()
   updatedAt: Date;
- 
+
   @OneToOne(() => Device, (device) => device.settings)
   @JoinColumn({ name: 'device_id' })
-  device: Device ;  
+  device: Device;
 }
- 
