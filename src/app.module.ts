@@ -14,11 +14,12 @@ import { MicroservicesModule } from './microservices/microservices.module';
 import { UnregisteredDevice } from './device/entities/device-unregistered.entity';
  import * as dotenv from 'dotenv';
 import { DeviceEarning } from './device/entities/device-earnings.entity';
+import { DeviceErrorLog } from './device/entities/device-errors.entity';
 dotenv.config();
 @Module({
   imports: [MqttModule, AuthModule, DeviceModule  ,  
 
-    TypeOrmModule.forFeature([Auth, Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning ]), 
+    TypeOrmModule.forFeature([Auth, Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning, DeviceErrorLog ]), 
     TypeOrmModule.forRoot({
  
       type: 'mysql',
@@ -27,7 +28,7 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: 'mqtt-listener',
-      entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning],
+      entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning , DeviceErrorLog],
       synchronize: true,
     }), MicroservicesModule, MqttHandlersModule,
 

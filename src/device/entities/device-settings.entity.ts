@@ -34,8 +34,17 @@ export class DeviceSettings {
   PaymentOptions: number;
 
 
-  @Column({ type:Number, default:0 })
-  Alarm:string
+  @Column({ type:Boolean, default:false})
+  alarm_tilt_sensor:boolean
+
+  @Column({ type:Boolean, default:false })
+  alarm_door_sensor:boolean
+
+  @Column({ type:Boolean, default:false })
+  alarm_battery_low_voltage:boolean
+
+  @Column({ type:Boolean, default:false })
+  alarm_battery_extremaly_low_voltage:boolean
 
   
   @Column({ type: String, default: '100' })

@@ -1,5 +1,6 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { EventEmitter2 } from "@nestjs/event-emitter";
+import { ERROR_CODES } from "src/libs/enums/error.enums";
 export interface MqttPayload {
   payload:any,
   topic:string 
@@ -29,7 +30,7 @@ export class MqttProvider {
       }
   
       if (msgJson.command === 3) {
-        console.log("COMMAND 3 ")
+        
         const payload = Buffer.from(msgJson.payload, 'binary');
         if (payload.length === 4) {
           msgJson.lockerStatus = payload[0];      // 0 = free, 1 = busy
@@ -49,7 +50,28 @@ export class MqttProvider {
       
         console.log("🚨 Alarm Event:", msgJson.alarms);
       }
-  
+      if (msgJson.command === 253) {
+        const rawStr = msgJson.payload.toString('utf8');  
+        if (rawStr.length >= 6) {
+          msgJson.hardware_version = rawStr.substring(0, 3);
+          msgJson.software_version = rawStr.substring(3, 6);
+        } else {
+          console.warn("Invalid version string in command 253:", rawStr);
+        }
+      }
+
+      if (msgJson.command === 254) {
+
+        const errorCode = msgJson.payload[0];
+      
+        const errorMessage = ERROR_CODES[errorCode] || `Unknown error (code ${errorCode})`;
+      
+        msgJson.error_code = errorCode;
+        msgJson.error_message = errorMessage;
+      
+        console.error(`❌ DEVICE ERROR [${topic.split('/')[1]}] → ${errorMessage} (code ${errorCode})`);
+      }
+
       this.eventEmitter.emit('generalEventHandler', { payload: msgJson, topic: topic });
   
     } else if (topic.match(/Locker\/[^\/]+\/events\/heartbeat/)) {
@@ -58,8 +80,8 @@ export class MqttProvider {
   }
 
   generateHexPayload(command, payload = []) {
-    const commandBuffer = Buffer.alloc(5); // 4 bytes for timestamp, 1 byte for command
-    commandBuffer.writeUInt32LE(Math.floor(Date.now() / 1000), 0); // Write timestamp
+    const commandBuffer = Buffer.alloc(5); 
+    commandBuffer.writeUInt32LE(Math.floor(Date.now() / 1000), 0);  
     commandBuffer.writeUInt8(command, 4); 
 
     let payloadBufferList = [];
@@ -108,15 +130,13 @@ export class MqttProvider {
 
  
 parseHexPayload(byteString) {
-  // Assuming 'byteString' is a Node.js Buffer
-  const data = {
+   const data = {
       timestamp: byteString.readUInt32BE(0),
       command: byteString.readUInt8(4),
       length: byteString.readUInt8(5)
   };
 
-  // Extract payload using the length (starting from byte 6)
-  const payload = byteString.slice(6, 6 + data.length);
+   const payload = byteString.slice(6, 6 + data.length);
 
   return {
       timestamp: data.timestamp,
