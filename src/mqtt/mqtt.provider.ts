@@ -75,6 +75,7 @@ export class MqttProvider {
       this.eventEmitter.emit('generalEventHandler', { payload: msgJson, topic: topic });
   
     } else if (topic.match(/Locker\/[^\/]+\/events\/heartbeat/)) {
+      console.log({ payload: msgJson, topic: topic })
       this.eventEmitter.emit('heartBeatHandler', { payload: msgJson, topic: topic });
     }
   }
@@ -126,25 +127,61 @@ export class MqttProvider {
     return Buffer.concat([commandBuffer, ...payloadBufferList]);
 }
 
+parseHexPayload(byteString: Buffer) {
+  // 🟢 Case 1: Heartbeat — exactly 2 bytes
+  if (byteString.length === 2) {
+    return {
+      isHeartbeat: true,
+      command: 0xFF, // virtual code
+      networkType: byteString.readUInt8(0),
+      signalStrength: byteString.readUInt8(1),
+      payload: byteString,
+    };
+  }
 
+  // 🟡 Case 2: Structured packet — must be at least 6 bytes
+  if (byteString.length >= 6) {
+    const timestamp = byteString.readUInt32BE(0);
+    const command = byteString.readUInt8(4);
+    const length = byteString.readUInt8(5);
 
- 
-parseHexPayload(byteString) {
-   const data = {
-      timestamp: byteString.readUInt32BE(0),
-      command: byteString.readUInt8(4),
-      length: byteString.readUInt8(5)
-  };
+    if (byteString.length >= 6 + length) {
+      const payload = byteString.slice(6, 6 + length);
+      return { timestamp, command, length, payload };
+    } else {
+      return {
+        isMalformed: true,
+        reason: 'Invalid declared length',
+        raw: byteString,
+      };
+    }
+  }
 
-   const payload = byteString.slice(6, 6 + data.length);
-
+  // 🔴 Fallback — too short or unknown format
   return {
-      timestamp: data.timestamp,
-      command: data.command,
-      length: data.length,
-      payload: payload
+    isMalformed: true,
+    reason: 'Unknown or unsupported packet format',
+    raw: byteString,
   };
 }
+
+ 
+// parseHexPayload(byteString) {
+//    const data = {
+//       timestamp: byteString.readUInt32BE(0),
+//       command: byteString.readUInt8(4),
+//       length: byteString.readUInt8(5)
+//   };
+
+//    const payload = byteString.slice(6, 6 + data.length);
+
+//   return {
+//       timestamp: data.timestamp,
+//       command: data.command,
+//       length: data.length,
+//       payload: payload
+//   };
+// }
 
 
 
