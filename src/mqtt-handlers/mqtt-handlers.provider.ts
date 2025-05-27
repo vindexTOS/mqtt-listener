@@ -69,7 +69,7 @@ export class MqttHandlersProviders {
   }
 
   generatePayload(command: number, payload: messageCommandKeyValueType[]) {
-    console.log('generate hexpayload', command);
+    // console.log('generate hexpayload', command);
     return {
       command: command,
       payload: payload,
@@ -81,7 +81,7 @@ export class MqttHandlersProviders {
       device_id: device_id,
       payload: payload,
     };
-    console.log(JSON.stringify(data));
+  
     this.eventEmitter.emit('publishMessage', { data });
   }
 
