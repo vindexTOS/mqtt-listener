@@ -21,3 +21,14 @@ export class ResetDeviceDto {
   })
   resetSection: ResetType;
 }
+
+
+
+export class  UpdateFirmwareDto{
+  @IsString()
+   version:string 
+   @IsString()
+   dev_id: string;
+   @IsString()
+   crc32: string;
+}

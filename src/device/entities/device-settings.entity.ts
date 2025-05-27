@@ -45,7 +45,8 @@ export class DeviceSettings {
 
   @Column({ type:Boolean, default:false })
   alarm_battery_extremaly_low_voltage:boolean
-
+  @Column({ type: Number, default: 0 })
+  device_type: number;
   
   @Column({ type: String, default: '100' })
   soft_version: string;

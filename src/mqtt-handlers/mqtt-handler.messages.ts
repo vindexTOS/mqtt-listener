@@ -120,12 +120,43 @@ export const PasswordCommand = (hash: string): messageCommandType => {
       ]
     };
   };
-// referencec data nothing speecial 
+ 
   export const StorageResetOptions: { key: string; value: number }[] = [
-    { key: "App config reset", value: 1 },         // 0x01
-    { key: "Extended1 config reset", value: 2 },   // 0x02
-    { key: "Lockers config reset", value: 16 },    // 0x10
-    { key: "MQTT config reset", value: 32 },       // 0x20
-    { key: "System config reset", value: 64 },     // 0x40
-    { key: "Reset all", value: 255 },              // 0xFF
+    { key: "App config reset", value: 1 },         
+    { key: "Extended1 config reset", value: 2 },   
+    { key: "Lockers config reset", value: 16 },    
+    { key: "MQTT config reset", value: 32 },       
+    { key: "System config reset", value: 64 },      
+    { key: "Reset all", value: 255 },               
   ];
+
+  export const FotaBeginCommand = (url: string, version: string, crc32: Buffer): messageCommandType => {
+    const [major, minor, patch] = version.split('.').map(Number);
+  
+    return {
+      command: 250, 
+      payload: [
+        {
+          type: 'string',
+          value: url 
+        },
+        {
+          type: 'number',
+          value: major
+        },
+        {
+          type: 'number',
+          value: minor
+        },
+        {
+          type: 'number',
+          value: patch
+        },
+        {
+          type: 'buffer',
+          value: crc32 
+        }
+      ]
+    };
+  };
+  

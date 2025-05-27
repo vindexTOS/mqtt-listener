@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   CreateDevice,
   DeviceNotInSystem,
+  FotaBeginCommand,
   messageCommandKeyValueType,
   NoServiceMessage,
   PasswordCommand,
@@ -49,6 +50,15 @@ export class MqttHandlersProviders {
 
       case 'ResetStorage': {
         const commandPayload = StorageResetCommand(passedPayload);
+        const payload = this.generatePayload(
+          commandPayload.command,
+          commandPayload.payload,
+        );
+        return this.publishMessage(dev_id, payload);
+      }
+      case 'UpdateFirmware': {
+        const {url, version, crc32} = passedPayload
+        const commandPayload = FotaBeginCommand(url, version, crc32);
         const payload = this.generatePayload(
           commandPayload.command,
           commandPayload.payload,

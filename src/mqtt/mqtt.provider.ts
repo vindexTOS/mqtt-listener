@@ -71,7 +71,24 @@ export class MqttProvider {
       
         console.error(`❌ DEVICE ERROR [${topic.split('/')[1]}] → ${errorMessage} (code ${errorCode})`);
       }
-
+      if (msgJson.command === 240) {
+        const dev_id = topic.split('/')[1];
+        const payload = msgJson.payload;
+      
+        const deviceType = payload[0];
+        const hardwareVersion = payload.slice(1, 4).toString(); // ASCII, like "00A"
+        const swRaw = payload.slice(4, 7);  
+        const softwareVersion = `${swRaw[0]}.${swRaw[1]}.${swRaw[2]}`;
+      
+        msgJson.device_type = deviceType;
+        msgJson.hardware_version = hardwareVersion;
+        msgJson.software_version = softwareVersion;
+      
+        // console.log(`📦 DEVICE SETUP from ${dev_id}`);
+        // console.log(`   → Type: ${deviceType}`);
+        // console.log(`   → HW Ver: ${hardwareVersion}`);
+        // console.log(`   → SW Ver: ${softwareVersion}`);
+      }
       this.eventEmitter.emit('generalEventHandler', { payload: msgJson, topic: topic });
   
     } else if (topic.match(/Locker\/[^\/]+\/events\/heartbeat/)) {

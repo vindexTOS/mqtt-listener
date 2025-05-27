@@ -11,8 +11,11 @@ import {
 import { StorageResetOptions } from 'src/mqtt-handlers/mqtt-handler.messages';
 import { MqttHandlersProviders } from 'src/mqtt-handlers/mqtt-handlers.provider';
 import { MqttHandlersService } from 'src/mqtt-handlers/mqtt-handlers.service';
-import { ResetDeviceDto } from './dto/commands.dto';
+import { ResetDeviceDto, UpdateFirmwareDto } from './dto/commands.dto';
+ 
+ import * as dotenv from 'dotenv';
 
+dotenv.config()
 @Controller('commands')
 export class CommandController {
   constructor(private readonly mqttHandlerProvider: MqttHandlersProviders) {}
@@ -31,5 +34,14 @@ export class CommandController {
   async resetDevice(@Body() body:ResetDeviceDto ){
     const {resetSection,dev_id } = body
     return await this.mqttHandlerProvider.handlePublishMessage("ResetStorage" , dev_id, String(resetSection) )
+  }
+
+  @Post("update-firmware")
+  async updateFirmware(@Body() body:UpdateFirmwareDto){
+    const {version, dev_id , crc32} = body 
+
+    const url = `${process.env.BASE_URL || "http://localhost:3000"}/download-fota/download/${version}`
+    return await this.mqttHandlerProvider.handlePublishMessage("UpdateFirmware", dev_id,{ url, version, crc32 }  )
+    
   }
 }

@@ -143,6 +143,29 @@ export class MqttHandlersService {
       this.logger.debug(`❌ DEVICE ERROR [${device.dev_id}] → ${message} (code ${errorByte})`);
     }
 
+    if (!deviceSettings.isBlocked && payload.command === 240){
+      //  F0 07 01 30 30 41 01 00 00
+      const {device_type,hardware_version ,software_version} = payload
+        console.log(payload)
+
+        // {
+        //   timestamp: 1713350930,
+        //   command: 240,
+        //   length: 7,
+        //   payload: <Buffer 01 30 30 41 01 00 00>,
+        //   device_type: 1,
+        //   hardware_version: '00A',
+        //   software_version: '1.0.0'
+        // }
+        deviceSettings.device_type = device_type;
+        deviceSettings.soft_version =software_version;
+        deviceSettings.hardware_version =hardware_version;
+   
+
+       await this.entityManager.save(DeviceSettings, deviceSettings);
+      await this.entityManager.save(Device, device);
+    } 
+
   }
   private async handleUnregisteredDevice(dev_id: string, payload: any) {
     let unregisteredDevice = await this.entityManager.findOne(

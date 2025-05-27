@@ -52,4 +52,8 @@ export class DeviceController {
   async deleteRegisteredDevice(@Param("dev_id") dev_id:string){
     return await this.deviceService.deleteRegisteredDevice(dev_id)
   }
+
+
+ 
+
 }

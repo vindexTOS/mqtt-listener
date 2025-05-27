@@ -15,11 +15,13 @@ import { UnregisteredDevice } from './device/entities/device-unregistered.entity
  import * as dotenv from 'dotenv';
 import { DeviceEarning } from './device/entities/device-earnings.entity';
 import { DeviceErrorLog } from './device/entities/device-errors.entity';
+import { DownloadFotaModule } from './download-fota/download-fota.module';
+import { FirmwareVersion } from './device/entities/firmware.entity';
 dotenv.config();
 @Module({
   imports: [MqttModule, AuthModule, DeviceModule  ,  
 
-    TypeOrmModule.forFeature([Auth, Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning, DeviceErrorLog ]), 
+    TypeOrmModule.forFeature([Auth, Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning, DeviceErrorLog , FirmwareVersion]), 
     TypeOrmModule.forRoot({
  
       type: 'mysql',
@@ -28,9 +30,9 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: 'mqtt-listener',
-      entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning , DeviceErrorLog],
+      entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning , DeviceErrorLog,FirmwareVersion],
       synchronize: true,
-    }), MicroservicesModule, MqttHandlersModule,
+    }), MicroservicesModule, MqttHandlersModule, DownloadFotaModule,
 
   ],
   controllers: [ ],
