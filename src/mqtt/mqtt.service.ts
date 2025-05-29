@@ -71,7 +71,13 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       console.error('MQTT connection closed');
     });
 
-
+    this.client.on('packetsend', (packet) => {
+      if (packet.cmd === 'publish') {
+        console.log('📤 MQTT PUBLISH packet sent:');
+        console.log('  → topic:', packet.topic);
+        console.log('  → payload (hex):', packet.payload?.toString('hex'));
+      }
+    });
 
 
 
@@ -95,7 +101,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
       if (err) {
         console.log(err)
       } else {
-        // console.log(topic)
+        console.log(topic)
       }
     });
   }
