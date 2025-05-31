@@ -1,5 +1,5 @@
 // dto/reset-device.dto.ts
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsString, IsInt, Min, Max  } from 'class-validator';
 
 export enum StorageResetSection {
   AppConfig = 1,
@@ -31,4 +31,53 @@ export class  UpdateFirmwareDto{
    dev_id: string;
    @IsString()
    crc32: string;
+}
+
+export class CreateAppConfigDto {
+  @IsInt()
+  @Min(0)
+  @Max(1)
+  startup: number; // Always 0
+
+  @IsInt()
+  @Min(1)
+  @Max(30000) // 300 Lari = 30,000 Tetri
+  paymentLimit: number; // In Tetri
+
+  @IsInt()
+  @Min(1)
+  @Max(5000) // 50 Lari = 5,000 Tetri
+  fineAmountPerMinute: number;
+
+  @IsInt()
+  @Min(1000)
+  @Max(300000)
+  doorAutoCloseTime: number; // In milliseconds
+
+  @IsInt()
+  @Min(1000)
+  @Max(300000)
+  menuTimeoutMs: number; // In milliseconds
+}
+
+export class CreateAppExt1ConfigDto {
+  @IsInt()
+  @Min(0)
+  @Max(1)
+  uiMode: number;
+
+  @IsInt()
+  @Min(0)
+  @Max(5)
+  retryCount: number;
+
+  @IsInt()
+  @Min(0)
+  @Max(255)
+  ledBrightness: number;
+
+  @IsInt()
+  @Min(100)
+  @Max(60000)
+  inactivityReset: number; // In ms
 }

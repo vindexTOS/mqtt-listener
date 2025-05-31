@@ -11,6 +11,7 @@ import {
 import { DeviceSettings } from './device-settings.entity';
 import { DeviceMessages } from './device-messages.entity';
 import { DeviceErrorLog } from './device-errors.entity';
+import { DeviceEarning } from './device-earnings.entity';
 
 @Entity()
 export class Device {
@@ -37,6 +38,8 @@ export class Device {
   @OneToOne(() => DeviceSettings, (settings) => settings.device, {
     cascade: true,
   })
+
+  
   @JoinColumn()
   settings: DeviceSettings;
 
@@ -48,4 +51,6 @@ export class Device {
 
   @OneToMany(() => DeviceErrorLog, (errorLog) => errorLog.device)
   error_logs: DeviceErrorLog[];
+  @OneToMany(() => DeviceEarning, (device_earnings) => device_earnings.device)
+  device_earnings: DeviceEarning[];
 }

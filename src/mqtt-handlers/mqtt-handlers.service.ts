@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { MqttHandlersProviders } from './mqtt-handlers.provider';
-import { EntityManager } from 'typeorm';
+import { Between, EntityManager } from 'typeorm';
 import { DeviceSettings } from 'src/device/entities/device-settings.entity';
 import { Device } from 'src/device/entities/device.entity';
 import * as moment from 'moment-timezone';
@@ -8,6 +8,8 @@ import { UnregisteredDevice } from 'src/device/entities/device-unregistered.enti
 import { MqttPayload } from 'src/mqtt/mqtt.provider';
 import { DeviceErrorLog } from 'src/device/entities/device-errors.entity';
 import { ERROR_CODES } from 'src/libs/enums/error.enums';
+import { DeviceEarning } from 'src/device/entities/device-earnings.entity';
+import { paymentCode, paymentStatus, PaymentTransactions } from 'src/device/entities/payment-transactions.entity';
 
 @Injectable()
 export class MqttHandlersService {
@@ -73,9 +75,47 @@ export class MqttHandlersService {
     dev_id: string,
     payload: any,
   ) {
-    const deviceSettings = await this.entityManager.findOne(DeviceSettings, {
-      where: { device: { id: device.id } },
-    });
+  const deviceSettings = await this.entityManager.findOne(DeviceSettings, {
+  where: { device: { id: device.id } },
+});
+
+if (!deviceSettings?.isBlocked && payload.command === 1) {
+ const deviceSettings = await this.entityManager.findOne(DeviceSettings, {
+  where: { device: { id: device.id } },
+});
+
+if (!deviceSettings?.isBlocked && payload.command === 1) {
+  // 66 1F A9 12 01 02 e8 03                         1000 tetri satestod 
+  this.updateEarnings(device, payload.amount)
+     this.createPayment(device.id,   "succeed", payload.amount, "inserted", "payment")
+
+}
+}
+
+ if(!deviceSettings?.isBlocked && payload.command === 2){
+   // 66 1F A9 12 02 02 01 01 e8 03
+   const { amount, operationCode, operationStatus } = payload;
+   const status = paymentStatus[operationStatus];
+
+   if (status === paymentStatus[1]) {
+     this.createPayment(
+       device.id,
+       status,
+       amount,
+       'terminal',
+       paymentCode[operationCode],
+     );
+     this.updateEarnings(device, amount);
+   }else{
+       this.createPayment(
+       device.id,
+       status,
+       amount,
+       'terminal',
+       paymentCode[operationCode],
+     );
+   }
+ }
 
     if (!deviceSettings.isBlocked && payload.command === 4) {
       // 66 1F A9 12 04 01 0A   test hex data for command 4
@@ -257,4 +297,44 @@ export class MqttHandlersService {
       await this.entityManager.save(newDevice);
     }
   }
+
+  private async updateEarnings(device:Device  , amount:number){
+     const todaysDate = moment().tz('Asia/Tbilisi');
+
+   const monthStart = todaysDate.clone().startOf('month').toDate();
+  const monthEnd = todaysDate.clone().endOf('month').toDate();
+
+
+   const existingEarnings = await this.entityManager.findOne(DeviceEarning, {
+    where: {
+      device_id:device.id,
+      createdAt: Between(monthStart, monthEnd),
+    },
+  });
+
+  if (!existingEarnings) {
+     await this.entityManager.save(DeviceEarning, {
+      device,
+      date: todaysDate.toDate(),
+      amount: amount,
+    });
+  } else {
+     existingEarnings.amount += amount;
+
+    await this.entityManager.save(DeviceEarning, existingEarnings);
+  }
+
+  }
+
+private async createPayment(deviceId: number, status: string, amount: number, type: string, operationCode:string) {
+  const payment = this.entityManager.create(PaymentTransactions, {
+    deviceId,    
+    status,
+    amount,
+    type,
+    operationCode
+  });
+
+  await this.entityManager.save(payment);  
+}
 }

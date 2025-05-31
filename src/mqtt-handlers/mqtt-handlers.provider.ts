@@ -6,6 +6,8 @@ import {
   messageCommandKeyValueType,
   NoServiceMessage,
   PasswordCommand,
+  SendAppConfigCommand,
+  SendAppExt1ConfigCommand,
   StorageResetCommand,
 } from './mqtt-handler.messages';
 import { Device } from 'src/device/entities/device.entity';
@@ -65,6 +67,24 @@ export class MqttHandlersProviders {
         );
         return this.publishMessage(dev_id, payload);
       }
+      case 'SendAppConfig': {
+   
+        const commandPayload = SendAppConfigCommand(passedPayload);
+        const payload = this.generatePayload(
+          commandPayload.command,
+          commandPayload.payload,
+        );
+        return this.publishMessage(dev_id, payload);
+      }
+      case 'SendAppExt1Config': {
+   
+        const commandPayload = SendAppExt1ConfigCommand(passedPayload);
+        const payload = this.generatePayload(
+          commandPayload.command,
+          commandPayload.payload,
+        );
+        return this.publishMessage(dev_id, payload);
+      }
     }
   }
 
@@ -81,8 +101,10 @@ export class MqttHandlersProviders {
       device_id: device_id,
       payload: payload,
     };
-  
+    console.log(payload)
     this.eventEmitter.emit('publishMessage', { data });
+
+    return {msg:`Command has been sent`}
   }
 
   // call to needed function

@@ -57,6 +57,39 @@ export class DeviceSettings {
   @Column({ type: Number, default: 2, nullable: true })
   network: number;
 
+
+  @Column({ type: Number, default: 1, nullable: true })
+  startup: number;
+  @Column({ type: Number, default:30000, nullable: true })
+  paymentLimit: number;
+
+  @Column({ type: Number, default:5000, nullable: true })
+  fineAmountPerMinute: number;
+
+// miliseconds
+  @Column({ type: Number, default:1000, nullable: true })
+  doorAutoCloseTime: number;
+
+// miliseconds
+  @Column({ type: Number, default:1000, nullable: true })
+  menuTimeoutMs: number;
+
+  @Column({ type: Number, default:0, nullable: true })
+  uiMode: number;
+
+  @Column({ type: Number, default:0, nullable: true })
+  retryCount: number;
+
+  @Column({ type: Number, default:0, nullable: true })
+  ledBrightness: number;
+
+  @Column({ type: Number, default:100, nullable: true })
+  inactivityReset: number;
+
+  @Column()
+device_id: number; 
+
+
   @Column({ type: Number, default: 0, nullable: true })
   signal: number;
 

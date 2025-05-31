@@ -6,7 +6,7 @@ import {
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Not, Repository } from 'typeorm';
+import { EntityManager, Like, Not, Repository } from 'typeorm';
 import { DeviceMessages } from './entities/device-messages.entity';
 import { Device } from './entities/device.entity';
 import { DeviceSettings } from './entities/device-settings.entity';
@@ -65,36 +65,31 @@ export class DeviceService {
     }
   }
 
-  async findAll(query: any) {
-    try {
-      const { name, dev_id, id, sort } = query;
+async findAll(query: any) {
+  try {
+    const { name, dev_id, id } = query;
 
-      const qb = this.entityManager.createQueryBuilder(Device, 'device');
+    const where: any = {};
+    if (name) where.name = Like(`%${name}%`);
+    if (dev_id) where.dev_id = Like(`%${dev_id}%`);
+    if (id) where.id = id;
 
-      if (name) {
-        qb.andWhere('device.name LIKE :name', { name: `%${name}%` });
-      }
+    // Step 1: Get devices matching filters
+    const devices = await this.entityManager.find(Device, { where });
 
-      if (dev_id) {
-        qb.andWhere('device.dev_id LIKE :dev_id', { dev_id: `%${dev_id}%` });
-      }
-
-      if (id) {
-        qb.andWhere('device.id = :id', { id });
-      }
-
-      if (sort) {
-        const order = sort.toLowerCase() === 'desc' ? 'DESC' : 'ASC';
-        qb.orderBy('device.createdAt', order);
-      } else {
-        qb.orderBy('device.createdAt', 'ASC');
-      }
-
-      return await qb.getMany();
-    } catch (error) {
-      throw new InternalServerErrorException(error);
+    // Step 2: For each device, fetch and attach settings
+    for (const device of devices) {
+      const settings = await this.entityManager.findOne(DeviceSettings, {
+        where: { device: { id: device.id } },
+      });
+      device['settings'] = settings || null;   
     }
+
+    return devices;
+  } catch (error) {
+    throw new InternalServerErrorException(error);
   }
+}
   async findOne(id: number) {
     try {
       const device = await this.entityManager.findOne(Device, {
@@ -107,14 +102,14 @@ export class DeviceService {
         where: { device: { id } },
       });
 
-      const messages = await this.entityManager.findOne(DeviceMessages, {
-        where: { device: { id } },
-      });
+      // const messages = await this.entityManager.findOne(DeviceMessages, {
+      //   where: { device: { id } },
+      // });
 
       const result = {
         ...device,
         settings,
-        messages,
+        // messages,
       };
 
       return result;

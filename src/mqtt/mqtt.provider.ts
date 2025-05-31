@@ -22,13 +22,23 @@ export class MqttProvider {
    
   TopicHandler(topic, message) {
     const msgJson: any = this.parseHexPayload(message);
-  
-    if (topic.match(/Locker\/[^\/]+\/events\/general/)) {
       
+    if (topic.match(/Locker\/[^\/]+\/events\/general/)) {
+   
       if (msgJson.command === 1) {
-        // TODO: handle command 1
-      }
+     msgJson.amount = msgJson.payload.readUInt16LE(0);
+       }
   
+ if(msgJson.command === 2) {
+ 
+     msgJson.operationCode = msgJson.payload[0]
+     msgJson.operationStatus = msgJson.payload[1]
+    msgJson.amount = msgJson.payload.readUInt16LE(2);
+
+
+ 
+ }
+
       if (msgJson.command === 3) {
         
         const payload = Buffer.from(msgJson.payload, 'binary');

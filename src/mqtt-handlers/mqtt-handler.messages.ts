@@ -1,10 +1,12 @@
+import { CreateAppConfigDto, CreateAppExt1ConfigDto } from "src/device/dto/commands.dto"
+
 export type messageCommandKeyValueType = {
-    type: 'string' | 'number' | 'number16' | 'timestamp' | 'buffer',
+    type: 'string' | 'number' | 'number16' | "number32" | 'timestamp' | 'buffer',
     value: string | number | Buffer
 }
 
 export type messageCommandType = {
-    command: number
+    command: number 
     payload: messageCommandKeyValueType[]
 }
 
@@ -159,4 +161,29 @@ export const PasswordCommand = (hash: string): messageCommandType => {
       ]
     };
   };
-  
+ 
+
+export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommandType => {
+  return {
+    command: 240,
+    payload: [
+      { type: 'number16', value: params.startup },
+      { type: 'number16', value: params.paymentLimit },
+      { type: 'number16', value: params.fineAmountPerMinute },
+      { type: 'number32', value: params.doorAutoCloseTime },
+      { type: 'number32', value: params.menuTimeoutMs },
+    ],
+  };
+};
+
+export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messageCommandType => {
+  return {
+    command: 241,  
+    payload: [
+      { type: 'number', value: config.uiMode },
+      { type: 'number', value: config.retryCount },
+      { type: 'number', value: config.ledBrightness },
+      { type: 'number16', value: config.inactivityReset },
+    ]
+  };
+};
