@@ -22,7 +22,7 @@ export class MqttProvider {
    
   TopicHandler(topic, message) {
     const msgJson: any = this.parseHexPayload(message);
-      
+      console.log(msgJson)
     if (topic.match(/Locker\/[^\/]+\/events\/general/)) {
    
       if (msgJson.command === 1) {
