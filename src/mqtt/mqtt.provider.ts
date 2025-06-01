@@ -38,11 +38,11 @@ export class MqttProvider {
 
  
  }
-
+//  TO DO  250 command added
       if (msgJson.command === 3) {
         
         const payload = Buffer.from(msgJson.payload, 'binary');
-        if (payload.length === 4) {
+        if (payload.length === 5) {
           msgJson.lockerStatus = payload[0];      // 0 = free, 1 = busy
           msgJson.lockerCharging = payload[1];    // 0 = idle, 1 = charging
           msgJson.lockerDoor = payload[2];        // 0 = closed, 1 = opened
