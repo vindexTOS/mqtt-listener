@@ -87,7 +87,7 @@ export class DeviceSettings {
   inactivityReset: number;
 
   @Column()
-device_id: number; 
+  device_id: number; 
 
 
   @Column({ type: Number, default: 0, nullable: true })

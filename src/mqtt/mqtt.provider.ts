@@ -40,16 +40,18 @@ export class MqttProvider {
  }
 //  TO DO  250 command added
       if (msgJson.command === 3) {
-        
+        // 66 1F A9 12 03 05 02 01 01 00 02
+
         const payload = Buffer.from(msgJson.payload, 'binary');
-        if (payload.length === 5) {
-          msgJson.lockerStatus = payload[0];      // 0 = free, 1 = busy
-          msgJson.lockerCharging = payload[1];    // 0 = idle, 1 = charging
-          msgJson.lockerDoor = payload[2];        // 0 = closed, 1 = opened
-          msgJson.paymentOption = payload[3];     // 0 = idle, 1-4 = payment options
-        } else {
-          console.warn(`Invalid payload length for command 3: expected 4 bytes, got ${payload.length}`);
-        }
+       
+          //  add  locker id as first 0 byte
+          msgJson.lockerId = payload[0]; // 0-999
+          msgJson.lockerStatus = payload[1]; // 0 = free, 1 = busy
+          msgJson.lockerCharging = payload[2]; // 0 = idle, 1 = charging
+          msgJson.lockerDoor = payload[3]; // 0 = closed, 1 = opened
+          msgJson.paymentOption = payload[4]; // 0 = idle, 1-4 = payment options
+          console.log(msgJson);
+       
       }
   
       if (msgJson.command === 4) {
@@ -60,15 +62,8 @@ export class MqttProvider {
       
         console.log("🚨 Alarm Event:", msgJson.alarms);
       }
-      if (msgJson.command === 253) {
-        const rawStr = msgJson.payload.toString('utf8');  
-        if (rawStr.length >= 6) {
-          msgJson.hardware_version = rawStr.substring(0, 3);
-          msgJson.software_version = rawStr.substring(3, 6);
-        } else {
-          console.warn("Invalid version string in command 253:", rawStr);
-        }
-      }
+
+ 
 
       if (msgJson.command === 254) {
 
@@ -82,6 +77,8 @@ export class MqttProvider {
         console.error(`❌ DEVICE ERROR [${topic.split('/')[1]}] → ${errorMessage} (code ${errorCode})`);
       }
       if (msgJson.command === 240) {
+        // 01 00 0A 01 00 00 00
+        console.log("Robika")
         const dev_id = topic.split('/')[1];
         const payload = msgJson.payload;
       

@@ -29,14 +29,14 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
 
 
 
-    // this.client = mqtt.connect('mqtt://localhost', {
-    //   port: 1883
-    // });
-    this.client = mqtt.connect('mqtt://116.203.146.251', {
-      port: 1883,
-      username: 'smartLockUser',       
-      password: 'smartLock.97!G@4',      
+    this.client = mqtt.connect('mqtt://localhost', {
+      port: 1883
     });
+    // this.client = mqtt.connect('mqtt://116.203.146.251', {
+    //   port: 1883,
+    //   username: 'smartLockUser',       
+    //   password: 'smartLock.97!G@4',      
+    // });
 
     this.client.on('connect', () => {
       console.log('Connected to MQTT broker');

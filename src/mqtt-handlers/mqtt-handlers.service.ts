@@ -10,6 +10,7 @@ import { DeviceErrorLog } from 'src/device/entities/device-errors.entity';
 import { ERROR_CODES } from 'src/libs/enums/error.enums';
 import { DeviceEarning } from 'src/device/entities/device-earnings.entity';
 import { paymentCode, paymentStatus, PaymentTransactions } from 'src/device/entities/payment-transactions.entity';
+import { DeviceLockers } from 'src/device/entities/device-lockers.entity';
 
 @Injectable()
 export class MqttHandlersService {
@@ -119,22 +120,30 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
 
 
   if (!deviceSettings.isBlocked && payload.command == 3) {
-      // 66 1F A9 12 03 04 01 01 00 02
+    // 66 1F A9 12 03 04 01 01 00 02
 
-      //  Lockerstatus	true	Locker is Busy
-      //  IsCharging	true	Charging is Active
-      //  IsOpen	false	Door is Closed
-      //  PaymentOptions	2	Option 2 selected
-      //  ლოქერის აიდის დამატება
-      this.mqttHandlers.callToNeededFunction(device, dev_id);
-      device.last_beat = moment().tz('Asia/Tbilisi').toDate();
-      deviceSettings.Lockerstatus = Boolean(payload.lockerStatus);
-      deviceSettings.IsOpen = Boolean(payload.lockerDoor);
-      deviceSettings.IsCharging = Boolean(payload.lockerCharging);
-      deviceSettings.PaymentOptions = payload.paymentOption;
-      await this.entityManager.save(DeviceSettings, deviceSettings);
-      await this.entityManager.save(Device, device);
-    }
+    //  Lockerstatus	true	Locker is Busy
+    //  IsCharging	true	Charging is Active
+    //  IsOpen	false	Door is Closed
+    //  PaymentOptions	2	Option 2 selected
+    //  ლოქერის აიდის დამატება
+    //  console.log(payload.lockerStatus)
+    const lockers = await this.entityManager.find(DeviceLockers, {
+      where: { device: { id: device.id } },
+    });
+
+    const updetableLocker: DeviceLockers = lockers.find(
+      (val: DeviceLockers) => (val.lockerId = payload.lockerId),
+    );
+    // console.log(updetableLocker)
+    device.last_beat = moment().tz('Asia/Tbilisi').toDate();
+ 
+    updetableLocker.lockerStatus = Boolean(payload.lockerStatus);
+    updetableLocker.isOpen = Boolean(payload.lockerDoor);
+    updetableLocker.isCharging = Boolean(payload.lockerCharging);
+    updetableLocker.paymentOptions = payload.paymentOption;
+    await this.entityManager.save(DeviceLockers, updetableLocker);
+  }
 
 
 

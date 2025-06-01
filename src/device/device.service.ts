@@ -14,6 +14,7 @@ import { MessagePattern } from '@nestjs/microservices';
 import { UnregisteredDevice } from './entities/device-unregistered.entity';
 import * as crypto from 'crypto';
 import { MqttHandlersProviders } from 'src/mqtt-handlers/mqtt-handlers.provider';
+import { DeviceLockers } from './entities/device-lockers.entity';
 @Injectable()
 export class DeviceService {
   constructor(
@@ -22,11 +23,11 @@ export class DeviceService {
   ) {}
 
   async create(createDeviceDto: CreateDeviceDto) {
-    const { dev_id, name  } = createDeviceDto;
+    const { dev_id, name } = createDeviceDto;
     try {
       return await this.entityManager.transaction(
         async (transactionEntityManager) => {
-          const plainPassword = crypto.randomBytes(12).toString("hex");
+          const plainPassword = crypto.randomBytes(12).toString('hex');
           const md5Hash = crypto
             .createHash('md5')
             .update(plainPassword)
@@ -34,11 +35,10 @@ export class DeviceService {
           const device = transactionEntityManager.create(Device, {
             dev_id,
             name,
-            password:md5Hash,
+            password: md5Hash,
           });
           const savedDevice = await transactionEntityManager.save(device);
           // sending message to device
-       
 
           const newDeviceSettings = transactionEntityManager.create(
             DeviceSettings,
@@ -60,67 +60,68 @@ export class DeviceService {
         },
       );
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw new InternalServerErrorException(error);
     }
   }
 
-async findAll(query: any) {
-  try {
-    const { name, dev_id, id } = query;
+  async findAll(query: any) {
+    try {
+      const { name, dev_id, id } = query;
 
-    const where: any = {};
-    if (name) where.name = Like(`%${name}%`);
-    if (dev_id) where.dev_id = Like(`%${dev_id}%`);
-    if (id) where.id = id;
+      const where: any = {};
+      if (name) where.name = Like(`%${name}%`);
+      if (dev_id) where.dev_id = Like(`%${dev_id}%`);
+      if (id) where.id = id;
 
-    // Step 1: Get devices matching filters
-    const devices = await this.entityManager.find(Device, { where });
+      // Step 1: Get devices matching filters
+      const devices = await this.entityManager.find(Device, { where });
 
-    // Step 2: For each device, fetch and attach settings
-    for (const device of devices) {
-      const settings = await this.entityManager.findOne(DeviceSettings, {
-        where: { device: { id: device.id } },
-      });
-      device['settings'] = settings || null;   
+      // Step 2: For each device, fetch and attach settings
+      for (const device of devices) {
+        const settings = await this.entityManager.findOne(DeviceSettings, {
+          where: { device: { id: device.id } },
+        });
+        const lockers = await this.entityManager.find(DeviceLockers , {where:{ device:{id:device.id}}})
+        device['settings'] = settings || null;
+        device['lockers'] = lockers || null;
+      }
+
+      return devices;
+    } catch (error) {
+      throw new InternalServerErrorException(error);
     }
+  }
+async findOne(id: number) {
+  try {
+    const device = await this.entityManager.findOne(Device, {
+      where: { id },
+    });
 
-    return devices;
+    if (!device) throw new NotFoundException('Device does not exist');
+
+    const settings = await this.entityManager.findOne(DeviceSettings, {
+      where: { device: { id } },
+    });
+
+    const lockers = await this.entityManager.find(DeviceLockers, {
+      where: { device: { id } },
+    });
+
+    const result = {
+      ...device,
+      settings,
+      lockers,
+    };
+
+    return result;
   } catch (error) {
-    throw new InternalServerErrorException(error);
+    if (error instanceof NotFoundException) {
+      throw new NotFoundException(error.message);
+    }
+    throw new InternalServerErrorException(error.message);
   }
 }
-  async findOne(id: number) {
-    try {
-      const device = await this.entityManager.findOne(Device, {
-        where: { id },
-      });
-
-      if (!device) throw new NotFoundException('Device does not exist');
-
-      const settings = await this.entityManager.findOne(DeviceSettings, {
-        where: { device: { id } },
-      });
-
-      // const messages = await this.entityManager.findOne(DeviceMessages, {
-      //   where: { device: { id } },
-      // });
-
-      const result = {
-        ...device,
-        settings,
-        // messages,
-      };
-
-      return result;
-    } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw new NotFoundException(error.message);
-      }
-      throw new InternalServerErrorException(error.message);
-    }
-  }
-
   async update(id: number, updateDeviceDto: UpdateDeviceDto) {
     try {
       const device = await this.entityManager.findOne(Device, {
@@ -143,10 +144,9 @@ async findAll(query: any) {
       device.name = updateDeviceDto.name;
 
       if (settings) {
-  
         settings.soft_version = updateDeviceDto.soft_version;
         settings.hardware_version = updateDeviceDto.hardware_version;
-         settings.network = updateDeviceDto.network;
+        settings.network = updateDeviceDto.network;
         settings.signal = updateDeviceDto.signal;
 
         await this.entityManager.save(DeviceSettings, settings);
@@ -233,6 +233,22 @@ async findAll(query: any) {
             },
           );
           await transactionEntityManager.save(newDeviceMessage);
+
+          for (let i = 1; i <= 6; i++) {
+            const lockers = await transactionEntityManager.create(
+              DeviceLockers,
+              {
+                lockerId: i,
+                device_id: savedDevice.id,
+                Lockerstatus: false,
+                IsCharging: false,
+                IsOpen: false,
+                PaymentOptions: 0,
+              },
+            );
+            await transactionEntityManager.save(lockers);
+          }
+
           await transactionEntityManager.delete(UnregisteredDevice, { dev_id });
           return savedDevice;
         },

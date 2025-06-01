@@ -12,15 +12,16 @@ import { DeviceSettings } from './device-settings.entity';
 import { DeviceMessages } from './device-messages.entity';
 import { DeviceErrorLog } from './device-errors.entity';
 import { DeviceEarning } from './device-earnings.entity';
+import { DeviceLockers } from './device-lockers.entity';
 
 @Entity()
 export class Device {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: String, unique: true })
+@Column({ type: String, unique: true })
   dev_id: string;
-  @Column({ type: String, nullable: true })
+@Column({ type: String,   unique: true })
   name: string;
 
   @CreateDateColumn()
@@ -53,4 +54,9 @@ export class Device {
   error_logs: DeviceErrorLog[];
   @OneToMany(() => DeviceEarning, (device_earnings) => device_earnings.device)
   device_earnings: DeviceEarning[];
+  @OneToMany(() => DeviceLockers, (lockers) => lockers.device)
+  lockers: DeviceLockers[];
+
+
+
 }

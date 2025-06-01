@@ -18,11 +18,12 @@ import { DeviceErrorLog } from './device/entities/device-errors.entity';
 import { DownloadFotaModule } from './download-fota/download-fota.module';
 import { FirmwareVersion } from './device/entities/firmware.entity';
 import { PaymentTransactions } from './device/entities/payment-transactions.entity';
+import { DeviceLockers } from './device/entities/device-lockers.entity';
 dotenv.config();
 @Module({
   imports: [MqttModule, AuthModule, DeviceModule  ,  
 
-    TypeOrmModule.forFeature([Auth, Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning, DeviceErrorLog , FirmwareVersion, PaymentTransactions]), 
+    TypeOrmModule.forFeature([Auth, Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning, DeviceErrorLog , FirmwareVersion, PaymentTransactions, DeviceLockers]), 
     TypeOrmModule.forRoot({
  
       type: 'mysql',
@@ -31,7 +32,7 @@ dotenv.config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: 'mqtt-listener',
-      entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning , DeviceErrorLog,FirmwareVersion,PaymentTransactions],
+      entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning , DeviceErrorLog,FirmwareVersion,PaymentTransactions, DeviceLockers],
       synchronize: true,
     }), MicroservicesModule, MqttHandlersModule, DownloadFotaModule,
 

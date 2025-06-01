@@ -109,25 +109,7 @@ export class MqttHandlersProviders {
 
   // call to needed function
 
-  callToNeededFunction(device: Device, data: any) {
-    switch (data.command) {
-      case 1:
-        return '1';
-
-      case 2:
-        return '2';
-      case 3:
-        return '3';
-      case 4:
-        return '4';
-      case 253:
-        return '253';
-      case 254:
-        return '254';
-      default:
-        break;
-    }
-  }
+ 
 
   //   celular remote number call
   //  sending device commands by calling
