@@ -165,17 +165,29 @@ export const PasswordCommand = (hash: string): messageCommandType => {
 
 export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommandType => {
   return {
-    command: 240,
+    command: 240, // 0xF0
     payload: [
-      { type: 'number16', value: params.startup },
-      { type: 'number16', value: params.paymentLimit },
-      { type: 'number16', value: params.fineAmountPerMinute },
-      { type: 'number32', value: params.doorAutoCloseTime },
-      { type: 'number32', value: params.menuTimeoutMs },
+      { type: 'number16', value: params.startup },                // Always 0
+      { type: 'number16', value: params.paymentLimit },           // [Tetri] 1–30000
+      { type: 'number16', value: params.fineAmountPerMinute },    // [Tetri] 1–5000
+      { type: 'number32', value: params.doorAutoCloseTimeMs },    // [ms]
+      { type: 'number32', value: params.menuTimeoutMs },          // [ms]
+
+  
+      { type: 'number32', value: params.services[0].time },       // Service 1 – time
+      { type: 'number32', value: params.services[0].amount },     // Service 1 – amount
+      { type: 'number32', value: params.services[1].time },       // Service 2 – time
+      { type: 'number32', value: params.services[1].amount },     // Service 2 – amount
+      { type: 'number32', value: params.services[2].time },       // Service 3 – time
+      { type: 'number32', value: params.services[2].amount },     // Service 3 – amount
+      { type: 'number32', value: params.services[3].time },       // Service 4 – time
+      { type: 'number32', value: params.services[3].amount },     // Service 4 – amount
+
+      // Overtime amount per minute
+      { type: 'number32', value: params.overTimeAmountPerMinute } // [Tetri] 1–5000
     ],
   };
 };
-
 export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messageCommandType => {
   return {
     command: 241,  
@@ -184,6 +196,8 @@ export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messag
       { type: 'number', value: config.retryCount },
       { type: 'number', value: config.ledBrightness },
       { type: 'number16', value: config.inactivityReset },
+     { type: 'string', value: config.ssid },             
+      { type: 'string', value: config.password },     
     ]
   };
 };

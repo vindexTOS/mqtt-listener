@@ -1,5 +1,6 @@
 // dto/reset-device.dto.ts
-import { IsEnum, IsString, IsInt, Min, Max  } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEnum, IsString, IsInt, Min, Max, ValidateNested, ArrayMinSize, ArrayMaxSize, IsArray, Length  } from 'class-validator';
 
 export enum StorageResetSection {
   AppConfig = 1,
@@ -33,31 +34,54 @@ export class  UpdateFirmwareDto{
    crc32: string;
 }
 
+export class ServiceConfig {
+  @IsInt()
+  @Min(1)
+  @Max(86400)  
+  time: number 
+
+  @IsInt()
+  @Min(1)
+  @Max(50000)  
+  amount: number;  
+}
 export class CreateAppConfigDto {
   @IsInt()
   @Min(0)
   @Max(1)
-  startup: number; // Always 0
+  startup: number;  
 
   @IsInt()
   @Min(1)
-  @Max(30000) // 300 Lari = 30,000 Tetri
-  paymentLimit: number; // In Tetri
+  @Max(30000)
+  paymentLimit: number;  
 
   @IsInt()
   @Min(1)
-  @Max(5000) // 50 Lari = 5,000 Tetri
-  fineAmountPerMinute: number;
+  @Max(5000)
+  fineAmountPerMinute: number;  
 
   @IsInt()
   @Min(1000)
   @Max(300000)
-  doorAutoCloseTime: number; // In milliseconds
+  doorAutoCloseTimeMs: number; 
 
   @IsInt()
   @Min(1000)
   @Max(300000)
-  menuTimeoutMs: number; // In milliseconds
+  menuTimeoutMs: number;  
+
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ServiceConfig)
+  @ArrayMinSize(4)
+  @ArrayMaxSize(4)
+  services: ServiceConfig[];
+
+  @IsInt()
+  @Min(1)
+  @Max(5000)
+  overTimeAmountPerMinute: number; // In Tetri
 }
 
 export class CreateAppExt1ConfigDto {
@@ -80,4 +104,21 @@ export class CreateAppExt1ConfigDto {
   @Min(100)
   @Max(60000)
   inactivityReset: number; // In ms
+    @IsInt()
+  @Min(0)
+  @Max(1)
+  startup: number; // Always 0
+
+  @IsInt()
+  @Min(0)
+  @Max(1)
+  networkType: number; // 0 = cellular, 1 = WiFi
+
+  @IsString()
+  @Length(0, 128)
+  ssid: string; // Null-terminated string, max 128 bytes
+
+  @IsString()
+  @Length(0, 128)
+  password: string; // Null-terminated string, max 128 bytes
 }
