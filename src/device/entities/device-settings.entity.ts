@@ -56,6 +56,14 @@ export class DeviceSettings {
 
   @Column({ type: Number, default: 2, nullable: true })
   network: number;
+  @Column({ type: Number, default: 0, nullable: true })
+  networkType: number;
+  @Column({ type: String, default: "", nullable: true })
+  ssid: string;
+  @Column({ type: String, default: "", nullable: true })
+   wifiPassword: string;
+
+ 
 
 
   @Column({ type: Number, default: 1, nullable: true })
@@ -68,7 +76,7 @@ export class DeviceSettings {
 
 // miliseconds
   @Column({ type: Number, default:1000, nullable: true })
-  doorAutoCloseTime: number;
+  doorAutoCloseTimeMs: number;
 
 // miliseconds
   @Column({ type: Number, default:1000, nullable: true })
@@ -89,6 +97,24 @@ export class DeviceSettings {
   @Column()
   device_id: number; 
 
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service1Time:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service2Time:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service3Time:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service4Time:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service1Amount:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service2Amount:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service3Amount:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  service4Amount:number
+  @Column({ type: Number, default: 0, nullable: true }) 
+  overTimeAmountPerMinute:number
 
   @Column({ type: Number, default: 0, nullable: true })
   signal: number;

@@ -122,3 +122,16 @@ export class CreateAppExt1ConfigDto {
   @Length(0, 128)
   password: string; // Null-terminated string, max 128 bytes
 }
+
+ 
+
+export class ResetLockerPasswordDto {
+  @IsInt()
+  @Min(1)
+  @Max(6)
+  lockerId: number;
+
+  @IsString()
+  @Length(4, 4)
+  code: string;
+}

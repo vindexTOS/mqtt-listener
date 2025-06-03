@@ -26,6 +26,8 @@ export class DeviceLockers {
 
   @Column({ type: 'boolean', default: false, nullable: true })
   isOpen: boolean;
+  @Column({ type: String  ,nullable: true })
+  password: string;
 
   @Column({ type: 'int', default: 0, nullable: true })
   paymentOptions: number;

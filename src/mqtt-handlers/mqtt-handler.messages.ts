@@ -166,38 +166,54 @@ export const PasswordCommand = (hash: string): messageCommandType => {
 export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommandType => {
   return {
     command: 240, // 0xF0
-    payload: [
-      { type: 'number16', value: params.startup },                // Always 0
-      { type: 'number16', value: params.paymentLimit },           // [Tetri] 1–30000
-      { type: 'number16', value: params.fineAmountPerMinute },    // [Tetri] 1–5000
-      { type: 'number32', value: params.doorAutoCloseTimeMs },    // [ms]
-      { type: 'number32', value: params.menuTimeoutMs },          // [ms]
+payload: [
+  { type: 'number16', value: params.startup },                // UINT16
+  { type: 'number16', value: params.paymentLimit },           // UINT16
+  { type: 'number16', value: params.fineAmountPerMinute },    // UINT16
+  { type: 'number32', value: params.doorAutoCloseTimeMs },    // UINT32
+  { type: 'number32', value: params.menuTimeoutMs },          // UINT32
 
-  
-      { type: 'number32', value: params.services[0].time },       // Service 1 – time
-      { type: 'number32', value: params.services[0].amount },     // Service 1 – amount
-      { type: 'number32', value: params.services[1].time },       // Service 2 – time
-      { type: 'number32', value: params.services[1].amount },     // Service 2 – amount
-      { type: 'number32', value: params.services[2].time },       // Service 3 – time
-      { type: 'number32', value: params.services[2].amount },     // Service 3 – amount
-      { type: 'number32', value: params.services[3].time },       // Service 4 – time
-      { type: 'number32', value: params.services[3].amount },     // Service 4 – amount
+  // Services (each: time=UINT32, amount=UINT32)
+  { type: 'number32', value: params.services[0].time },
+  { type: 'number32', value: params.services[0].amount },
+  { type: 'number32', value: params.services[1].time },
+  { type: 'number32', value: params.services[1].amount },
+  { type: 'number32', value: params.services[2].time },
+  { type: 'number32', value: params.services[2].amount },
+  { type: 'number32', value: params.services[3].time },
+  { type: 'number32', value: params.services[3].amount },
 
-      // Overtime amount per minute
-      { type: 'number32', value: params.overTimeAmountPerMinute } // [Tetri] 1–5000
-    ],
+  { type: 'number16', value: params.overTimeAmountPerMinute } // UINT16
+]
   };
 };
 export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messageCommandType => {
   return {
     command: 241,  
+payload: [
+  { type: 'number', value: config.uiMode },           // 1 byte
+  { type: 'number', value: config.retryCount },       // 1 byte
+  { type: 'number', value: config.ledBrightness },    // 1 byte
+  { type: 'number16', value: config.inactivityReset },// 2 bytes
+  { type: 'number16', value: config.startup },        // 2 bytes
+  { type: 'number', value: config.networkType },      // 1 byte
+  { type: 'string', value: config.ssid },             // 128 bytes (null-padded)
+  { type: 'string', value: config.password },         // 128 bytes (null-padded)
+]
+  };
+
+
+  
+};
+
+export const SendResetLockerPasswordCommand = (lockerId: number, code: string) => {
+ 
+
+  return {
+    command: 1,  
     payload: [
-      { type: 'number', value: config.uiMode },
-      { type: 'number', value: config.retryCount },
-      { type: 'number', value: config.ledBrightness },
-      { type: 'number16', value: config.inactivityReset },
-     { type: 'string', value: config.ssid },             
-      { type: 'string', value: config.password },     
+      { type: 'number', value: lockerId },
+      { type: 'string', value: code }
     ]
   };
 };
