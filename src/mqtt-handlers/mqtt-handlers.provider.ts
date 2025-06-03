@@ -5,9 +5,12 @@ import {
   FotaBeginCommand,
   messageCommandKeyValueType,
   NoServiceMessage,
+  OpenCloseCommand,
   PasswordCommand,
   SendAppConfigCommand,
   SendAppExt1ConfigCommand,
+  SendResetLockerPasswordCommand,
+  SendTransactionReconciliationCommand,
   StorageResetCommand,
 } from './mqtt-handler.messages';
 import { Device } from 'src/device/entities/device.entity';
@@ -79,6 +82,33 @@ export class MqttHandlersProviders {
       case 'SendAppExt1Config': {
    
         const commandPayload = SendAppExt1ConfigCommand(passedPayload);
+        const payload = this.generatePayload(
+          commandPayload.command,
+          commandPayload.payload,
+        );
+        return this.publishMessage(dev_id, payload);
+      }
+      case 'ResetLockerPassword': {
+   
+        const commandPayload = SendResetLockerPasswordCommand(passedPayload);
+        const payload = this.generatePayload(
+          commandPayload.command,
+          commandPayload.payload,
+        );
+        return this.publishMessage(dev_id, payload);
+      }
+      case 'OpenClose': {
+   
+        const commandPayload = OpenCloseCommand(passedPayload);
+        const payload = this.generatePayload(
+          commandPayload.command,
+          commandPayload.payload,
+        );
+        return this.publishMessage(dev_id, payload);
+      }
+      case 'Reconciliation': {
+   
+        const commandPayload =SendTransactionReconciliationCommand( );
         const payload = this.generatePayload(
           commandPayload.command,
           commandPayload.payload,

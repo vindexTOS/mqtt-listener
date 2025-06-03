@@ -1,4 +1,4 @@
-import { CreateAppConfigDto, CreateAppExt1ConfigDto } from "src/device/dto/commands.dto"
+import { CreateAppConfigDto, CreateAppExt1ConfigDto, OpenDoorDto, ResetLockerPasswordDto } from "src/device/dto/commands.dto"
 
 export type messageCommandKeyValueType = {
     type: 'string' | 'number' | 'number16' | "number32" | 'timestamp' | 'buffer',
@@ -206,14 +206,39 @@ payload: [
   
 };
 
-export const SendResetLockerPasswordCommand = (lockerId: number, code: string) => {
- 
 
-  return {
-    command: 1,  
+export const SendResetLockerPasswordCommand = (
+  payload: ResetLockerPasswordDto
+): messageCommandType => {
+
+  const { lockerId, code } = payload;
+
+  const result: messageCommandType = {
+    command: 1,
     payload: [
-      { type: 'number', value: lockerId },
-      { type: 'string', value: code }
+      { type: 'number' as const, value: lockerId },
+      { type: 'string' as const, value: code },
     ]
+  };
+
+  return result;
+};
+
+export const OpenCloseCommand = (payload:OpenDoorDto): messageCommandType  =>{
+   return {
+    command: 2,   
+    payload: [
+      { type: 'number'  ,value: payload.lockerId },
+      { type: 'number'  , value: payload.openClose }
+    ]
+  };
+  
+
+}
+
+export const SendTransactionReconciliationCommand = () => {
+  return {
+    command: 3, 
+    payload: [] 
   };
 };

@@ -16,6 +16,7 @@ import { MqttHandlersService } from 'src/mqtt-handlers/mqtt-handlers.service';
 import {
   CreateAppConfigDto,
   CreateAppExt1ConfigDto,
+  OpenDoorDto,
   ResetDeviceDto,
   ResetLockerPasswordDto,
   UpdateFirmwareDto,
@@ -25,6 +26,7 @@ import * as dotenv from 'dotenv';
 import { DeviceSettings } from './entities/device-settings.entity';
 import { EntityManager } from 'typeorm';
 import { Device } from './entities/device.entity';
+import { DeviceLockers } from './entities/device-lockers.entity';
 
 dotenv.config();
 @Controller('commands')
@@ -164,11 +166,55 @@ export class CommandController {
       throw new HttpException('Device not found', HttpStatus.NOT_FOUND);
     }
 
+    const locker = await this.entetieManager.findOne(DeviceLockers, {
+      where: {
+        device: { id: device.id },
+        lockerId: dto.lockerId,
+      },
+    });
 
-      const resultPayLoad = await this.mqttHandlerProvider.handlePublishMessage(
+    if (!locker) {
+      throw new Error(`Locker ID ${dto.lockerId} not found for this device.`);
+    }
+
+    const resultPayLoad = await this.mqttHandlerProvider.handlePublishMessage(
       'ResetLockerPassword',
       dev_id,
       dto,
+    );
+    await this.entetieManager.update(DeviceLockers, locker.id, dto);
+
+    return resultPayLoad;
+  }
+
+  @Post('open-locker/:dev_id')
+  async openLocker(@Param('dev_id') dev_id: string, @Body() dto: OpenDoorDto) {
+ 
+    const device = await this.entetieManager.findOne(Device, {
+      where: { dev_id },
+    });
+    if (!device) {
+      throw new HttpException('Device not found', HttpStatus.NOT_FOUND);
+    }
+    return await this.mqttHandlerProvider.handlePublishMessage(
+      'OpenClose',
+      dev_id,
+      dto,
+    );
+  }
+  @Post('payment-reconciliation/:dev_id')
+  async reconciliation(@Param('dev_id') dev_id: string  ) {
+ 
+    const device = await this.entetieManager.findOne(Device, {
+      where: { dev_id },
+    });
+    if (!device) {
+      throw new HttpException('Device not found', HttpStatus.NOT_FOUND);
+    }
+    return await this.mqttHandlerProvider.handlePublishMessage(
+      'Reconciliation',
+      dev_id,
+      
     );
   }
 }

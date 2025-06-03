@@ -27,13 +27,13 @@ export class DeviceLockers {
   @Column({ type: 'boolean', default: false, nullable: true })
   isOpen: boolean;
   @Column({ type: String  ,nullable: true })
-  password: string;
+  code: string;
 
   @Column({ type: 'int', default: 0, nullable: true })
   paymentOptions: number;
 
   @ManyToOne(() => Device, (device) => device.lockers, {
-    onDelete: 'CASCADE',
+   onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'device_id' })
   device: Device;

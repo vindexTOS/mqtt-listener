@@ -135,3 +135,14 @@ export class ResetLockerPasswordDto {
   @Length(4, 4)
   code: string;
 }
+export class OpenDoorDto {
+  @IsInt()
+  @Min(1)
+  @Max(6)
+  lockerId: number;
+
+ @IsInt()
+  @Min(0)
+  @Max(1)
+  openClose: number;
+}
