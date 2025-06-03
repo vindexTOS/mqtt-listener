@@ -289,27 +289,27 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
   //   }
   // }
 
-  private async registerOrUpdateUnregisteredDevice(
-    unregisteredDevice: UnregisteredDevice | null,
-    dev_id: string,
-    payload: any,
-  ) {
-    const hardware_version = payload?.payload?.substring(0, 3) || '0.0';
-    const soft_version = payload?.payload?.substring(3, 6) || '0.0';
+  // private async registerOrUpdateUnregisteredDevice(
+  //   unregisteredDevice: UnregisteredDevice | null,
+  //   dev_id: string,
+  //   payload: any,
+  // ) {
+  //   const hardware_version = payload?.payload?.substring(0, 3) || '0.0';
+  //   const soft_version = payload?.payload?.substring(3, 6) || '0.0';
 
-    if (unregisteredDevice) {
-      unregisteredDevice.hardware_version = hardware_version;
-      unregisteredDevice.soft_version = soft_version;
-      await this.entityManager.save(unregisteredDevice);
-    } else {
-      const newDevice = this.entityManager.create(UnregisteredDevice, {
-        dev_id,
-        hardware_version,
-        soft_version,
-      });
-      await this.entityManager.save(newDevice);
-    }
-  }
+  //   if (unregisteredDevice) {
+  //     unregisteredDevice.hardware_version = hardware_version;
+  //     unregisteredDevice.soft_version = soft_version;
+  //     await this.entityManager.save(unregisteredDevice);
+  //   } else {
+  //     const newDevice = this.entityManager.create(UnregisteredDevice, {
+  //       dev_id,
+  //       hardware_version,
+  //       soft_version,
+  //     });
+  //     await this.entityManager.save(newDevice);
+  //   }
+  // }
 
   private async updateEarnings(device:Device  , amount:number){
      const todaysDate = moment().tz('Asia/Tbilisi');
