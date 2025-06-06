@@ -19,7 +19,7 @@ export class MqttHandlersService {
     private readonly mqttHandlers: MqttHandlersProviders,
   ) {}
   private readonly logger = new Logger(MqttHandlersService.name);
-  async heartBeatHandler(data: MqttPayload): Promise<any> {
+async heartBeatHandler(data: MqttPayload): Promise<any> {
     const { payload, topic } = data;
     const bufferPayload = payload.payload;
     const network = bufferPayload[0];
@@ -38,6 +38,10 @@ export class MqttHandlersService {
           dev_id +
           ' Heart Beat Event',
       );
+
+      // Handle Unregistered Device
+      await this.handleUnregisteredDevice(dev_id, payload);
+
       return 'Device not found';
     }
 
@@ -52,7 +56,9 @@ export class MqttHandlersService {
 
     await this.entityManager.save(Device, device);
     await this.entityManager.save(DeviceSettings, deviceSettings);
-  }
+
+    return 'Heartbeat processed';
+}
 
   async generalEventHandler(data: MqttPayload) {
     const { payload, topic } = data;
