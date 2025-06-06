@@ -183,7 +183,7 @@ payload: [
   { type: 'number32', value: params.services[3].time },
   { type: 'number32', value: params.services[3].amount },
 
-  { type: 'number16', value: params.overTimeAmountPerMinute } // UINT16
+  { type: 'number32', value: params.overTimeAmountPerMinute } // UINT16
 ]
   };
 };
