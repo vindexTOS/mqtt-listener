@@ -191,11 +191,12 @@ export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messag
   return {
     command: 241,  
 payload: [
+    { type: 'number16', value: config.startup },      
   { type: 'number', value: config.uiMode },           // 1 byte
   { type: 'number', value: config.retryCount },       // 1 byte
   { type: 'number', value: config.ledBrightness },    // 1 byte
   { type: 'number16', value: config.inactivityReset },// 2 bytes
-  { type: 'number16', value: config.startup },        // 2 bytes
+  // { type: 'number16', value: config.startup },        // 2 bytes
   { type: 'number', value: config.networkType },      // 1 byte
   { type: 'string', value: config.ssid },             // 128 bytes (null-padded)
   { type: 'string', value: config.password },         // 128 bytes (null-padded)
