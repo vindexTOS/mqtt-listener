@@ -60,9 +60,8 @@ export class CommandController {
   async updateFirmware(@Body() body: UpdateFirmwareDto) {
     const { version, dev_id, crc32 } = body;
 
-    // const url = `${process.env.BASE_URL || "http://localhost:3000"}/download-fota/download/${version}`
-    // const url = `${'http://lift.eideas.io'}/download-fota/download/${version}`;
-       const url = `${'http://lift.eideas.io'}`;
+    const url = `${process.env.BASE_URL}/download-fota/download/${version}`
+    // const url = `${'http://localhost:3000'}/download-fota/download/${version}`;
     return await this.mqttHandlerProvider.handlePublishMessage(
       'UpdateFirmware',
       dev_id,
