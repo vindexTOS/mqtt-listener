@@ -142,16 +142,20 @@ export const FotaBeginCommand = (url: string, version: string, crc32: Buffer): m
         type: 'string',
         value: url
       },
-      {
+           {
         type: 'number',
+        value: 0
+      },
+      {
+        type: 'string',
         value: major
       },
       {
-        type: 'number',
+        type: 'string',
         value: minor
       },
       {
-        type: 'number',
+        type: 'string',
         value: patch
       },
       {
