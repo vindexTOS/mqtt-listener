@@ -188,25 +188,27 @@ export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommand
   };
 };
 export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messageCommandType => {
+  const maxSsidLength = 119;  // Maximum length for SSID
+  const maxPasswordLength = 124; // Maximum length for Password
+
+  // Calculate how much space is left for ssid and password
+  const payloadLength = 7; // Total number of other fields before ssid and password (adjust if necessary)
+  
+  // Trim SSID and Password to fit within the remaining space
+  const ssid = config.ssid.substring(0, maxSsidLength);
+  const password = config.password.substring(0, maxPasswordLength);
+
   return {
     command: 241,
     payload: [
-      { type: 'number16', value: config.startup },
-      { type: 'number', value: config.networkType },
-      { type: 'string', value: config.ssid },
-          // { type: 'number', value: 0},
-      { type: 'string', value: config.password },
-            // { type: 'number', value: 0},
-      // { type: 'number', value: config.uiMode },
-      // { type: 'number', value: config.retryCount },
-      // { type: 'number', value: config.ledBrightness },
-      // { type: 'number16', value: config.inactivityReset },
-
+      { type: 'number16', value: config.startup },  // Typically 2 bytes
+      { type: 'number', value: config.networkType }, // 1 byte
+      { type: 'string', value: ssid }, // Ensure SSID fits
+      { type: 'number', value: 0 },  // 1 byte
+      { type: 'string', value: password }, // Ensure Password fits
+      { type: 'number', value: 0 },  // 1 byte
     ]
   };
-
-
-
 };
 
 
