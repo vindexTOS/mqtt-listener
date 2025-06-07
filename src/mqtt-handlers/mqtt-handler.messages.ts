@@ -144,9 +144,9 @@ export const FotaBeginCommand = (
   return {
     command: 250,
     payload: [
-      { type: 'string', value: "GAMARJOBA RAGACA STRINGI" },
+      { type: 'string', value: "123" },
       { type: 'number', value: 0 },
-      { type: 'string', value: versionStr },       
+      { type: 'string', value:  "111"},       
       { type: 'number32', value: fileLength },
       { type: 'number32', value: crc32 }
     ]
