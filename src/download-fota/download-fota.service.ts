@@ -33,24 +33,28 @@ export class DownloadFotaService {
       }
   
       // ✅ Calculate CRC32
-      const crc = CRC32.buf(file.buffer) >>> 0;
-      const crcHex = crc.toString(16).toUpperCase().padStart(8, '0');
-  
+    const crc = CRC32.buf(file.buffer) >>> 0; 
+    const crcHex = crc.toString(16).toUpperCase().padStart(8, '0'); 
+    console.log(crc)
+        const fileLength = file.buffer.length;
       const firmware = this.entityManager.create(FirmwareVersion, {
         version,
         file_url: `/uploads/fota/${filename}`,
-        crc32: crcHex,
+        crc32:String(crc), 
+     fileLength
       });
   
       await this.entityManager.save(FirmwareVersion, firmware);
-  
+      
       return {
         message: 'Firmware uploaded successfully',
         version,
         file_url: firmware.file_url,
-        crc32: crcHex,
+        crc32: crc,
+        fileLength
       };
     } catch (err) {
+      console.log(err)
       throw new InternalServerErrorException('Upload failed: ' + err.message);
     }
   }

@@ -132,40 +132,29 @@ export const StorageResetOptions: { key: string; value: number }[] = [
   { key: "Reset all", value: 255 },
 ];
 
-export const FotaBeginCommand = (url: string, version: string, crc32: Buffer): messageCommandType => {
-  const [major, minor, patch] = version.split('.').map(Number);
-
+export const FotaBeginCommand = (
+  url: string,
+  version: string,
+  crc32: number,
+  fileLength: number
+): messageCommandType => {
+  const [major, minor, patch] = version.split('.');
+  console.log( major.charAt(0))
+  console.log( minor.charAt(0) )
+  console.log(patch.charAt(0)  )
   return {
     command: 250,
     payload: [
-      {
-        type: 'string',
-        value: url
-      },
-           {
-        type: 'number',
-        value: 0
-      },
-      {
-        type: 'string',
-        value: major
-      },
-      {
-        type: 'string',
-        value: minor
-      },
-      {
-        type: 'string',
-        value: patch
-      },
-      {
-        type: 'buffer',
-        value: crc32
-      }
+      { type: 'string', value: url },
+      { type: 'number', value: 0 },
+      { type: 'string', value: major.charAt(0) }, 
+      { type: 'string', value: minor.charAt(0) }, 
+      { type: 'string', value: patch.charAt(0) },  
+      { type: 'number32', value: fileLength },
+      { type: 'number32', value: crc32 }
     ]
   };
 };
-
 
 export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommandType => {
   return {

@@ -27,6 +27,7 @@ import { DeviceSettings } from './entities/device-settings.entity';
 import { EntityManager } from 'typeorm';
 import { Device } from './entities/device.entity';
 import { DeviceLockers } from './entities/device-lockers.entity';
+import { FirmwareVersion } from './entities/firmware.entity';
 
 dotenv.config();
 @Controller('commands')
@@ -57,15 +58,26 @@ export class CommandController {
   }
 
   @Post('update-firmware')
-  async updateFirmware(@Body() body: UpdateFirmwareDto) {
-    const { version, dev_id, crc32 } = body;
+  async updateFirmware( @Body() body:UpdateFirmwareDto ) {
+  
+  const {id, dev_id} = body
+    const firmWare = await this.entetieManager.findOne(FirmwareVersion, {
+      where: { id:Number(id)  },
+    });
+    if (!firmWare) {
+      throw new HttpException(
+        'Firmware not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const { version,  crc32, fileLength } = firmWare;
 
     const url = `http://116.203.146.251/download-fota/download/${version}`
     // const url = `${'http://localhost:3000'}/download-fota/download/${version}`;
     return await this.mqttHandlerProvider.handlePublishMessage(
       'UpdateFirmware',
       dev_id,
-      { url, version, crc32 },
+      { url, version, crc32,fileLength },
     );
   }
 

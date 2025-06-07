@@ -52,7 +52,7 @@ export class DownloadFotaController {
   @UseInterceptors(FileInterceptor('firmware'))
   async create(
     @UploadedFile() file: Express.Multer.File,
-    @Body() dto: CreateDownloadFotaDto,
+   
   ) {
     return await this.downloadFotaService.handleUpload(file );
   }

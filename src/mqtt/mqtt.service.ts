@@ -93,7 +93,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
     const topic = `Locker/${device_id}/commands/general`;
   // console.log('📡 Publishing to MQTT topic:', topic);
   console.log('🧾 Raw Payload Buffer:', payload);
-  console.log('🧾 Payload as HEX:', payload.toString('hex'));
+  // console.log('🧾 Payload as HEX:', payload.toString('hex'));
   
   // 🔍 LOGGING ENDS HERE
 

@@ -1,6 +1,17 @@
 // dto/reset-device.dto.ts
 import { Type } from 'class-transformer';
-import { IsEnum, IsString, IsInt, Min, Max, ValidateNested, ArrayMinSize, ArrayMaxSize, IsArray, Length  } from 'class-validator';
+import {
+  IsEnum,
+  IsString,
+  IsInt,
+  Min,
+  Max,
+  ValidateNested,
+  ArrayMinSize,
+  ArrayMaxSize,
+  IsArray,
+  Length,
+} from 'class-validator';
 
 export enum StorageResetSection {
   AppConfig = 1,
@@ -18,58 +29,60 @@ export class ResetDeviceDto {
   dev_id: string;
 
   @IsEnum(StorageResetSection, {
-    message: `resetSection must be one of: ${Object.values(StorageResetSection).filter(v => typeof v === 'number').join(', ')}`,
+    message: `resetSection must be one of: ${Object.values(StorageResetSection)
+      .filter((v) => typeof v === 'number')
+      .join(', ')}`,
   })
   resetSection: ResetType;
 }
 
-
-
-export class  UpdateFirmwareDto{
+export class UpdateFirmwareDto {
   @IsString()
-   version:string 
-   @IsString()
-   dev_id: string;
-   @IsString()
-   crc32: string;
+  dev_id: string;
+  @IsInt()
+  id: number;
+  //  @IsString()
+  //  crc32: string;
+  //  @IsString()
+  //  fileLength: string;
 }
 
 export class ServiceConfig {
   @IsInt()
   @Min(1)
-  @Max(86400)  
-  time: number 
+  @Max(86400)
+  time: number;
 
   @IsInt()
   @Min(1)
-  @Max(50000)  
-  amount: number;  
+  @Max(50000)
+  amount: number;
 }
 export class CreateAppConfigDto {
   @IsInt()
   @Min(0)
   @Max(1)
-  startup: number;  
+  startup: number;
 
   @IsInt()
   @Min(1)
   @Max(30000)
-  paymentLimit: number;  
+  paymentLimit: number;
 
   @IsInt()
   @Min(1)
   @Max(5000)
-  fineAmountPerMinute: number;  
+  fineAmountPerMinute: number;
 
   @IsInt()
   @Min(1000)
   @Max(300000)
-  doorAutoCloseTimeMs: number; 
+  doorAutoCloseTimeMs: number;
 
   @IsInt()
   @Min(1000)
   @Max(300000)
-  menuTimeoutMs: number;  
+  menuTimeoutMs: number;
 
   @IsArray()
   @ValidateNested({ each: true })
@@ -104,7 +117,7 @@ export class CreateAppExt1ConfigDto {
   @Min(100)
   @Max(60000)
   inactivityReset: number; // In ms
-    @IsInt()
+  @IsInt()
   @Min(0)
   @Max(1)
   startup: number; // Always 0
@@ -123,8 +136,6 @@ export class CreateAppExt1ConfigDto {
   password: string; // Null-terminated string, max 128 bytes
 }
 
- 
-
 export class ResetLockerPasswordDto {
   @IsInt()
   @Min(1)
@@ -141,7 +152,7 @@ export class OpenDoorDto {
   @Max(6)
   lockerId: number;
 
- @IsInt()
+  @IsInt()
   @Min(0)
   @Max(1)
   openClose: number;
