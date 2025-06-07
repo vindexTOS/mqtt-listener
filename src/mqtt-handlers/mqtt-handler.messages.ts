@@ -139,23 +139,20 @@ export const FotaBeginCommand = (
   fileLength: number
 ): messageCommandType => {
   const [major, minor, patch] = version.split('.');
-  console.log( major.charAt(0))
-  console.log( minor.charAt(0) )
-  console.log(patch.charAt(0)  )
+  const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`; // e.g. "100"
+
   return {
     command: 250,
     payload: [
       { type: 'string', value: url },
       { type: 'number', value: 0 },
-      { type: 'string', value: major.charAt(0) }, 
-      { type: 'string', value: minor.charAt(0) }, 
-      { type: 'string', value: patch.charAt(0) },  
-      { type: 'number32', value: Number(fileLength) },
-      { type: 'number32', value: Number(crc32) }
+      { type: 'string', value: versionStr },       /
+      { type: 'number32', value: fileLength },
+      { type: 'number32', value: crc32 }
     ]
   };
 };
-
+//👈 now 1 string like '100'
 export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommandType => {
   return {
     command: 240, // 0xF0
