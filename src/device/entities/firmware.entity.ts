@@ -16,8 +16,8 @@ export class FirmwareVersion {
   @Column({ type: 'varchar', length: 255 })
   file_url: string;
 
-@Column({ type: 'int', unsigned: true })
-  crc32: number;
+@Column({ type: 'varchar', unsigned: true })
+  crc32: string;
 
   @Column({ type: Number })
   fileLength: number; // e.g. "56FAD512"
