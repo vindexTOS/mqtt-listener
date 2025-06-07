@@ -150,8 +150,8 @@ export const FotaBeginCommand = (
       { type: 'string', value: major.charAt(0) }, 
       { type: 'string', value: minor.charAt(0) }, 
       { type: 'string', value: patch.charAt(0) },  
-      { type: 'number32', value: fileLength },
-      { type: 'number32', value: crc32 }
+      { type: 'number32', value: Number(fileLength) },
+      { type: 'number32', value: Number(crc32) }
     ]
   };
 };
