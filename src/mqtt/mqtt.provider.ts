@@ -22,7 +22,7 @@ export class MqttProvider {
    
   TopicHandler(topic, message) {
     const msgJson: any = this.parseHexPayload(message);
-      console.log(msgJson)
+      // console.log(msgJson)
     if (topic.match(/Locker\/[^\/]+\/events\/general/)) {
    
       if (msgJson.command === 1) {
@@ -50,7 +50,7 @@ export class MqttProvider {
           msgJson.lockerCharging = payload[2]; // 0 = idle, 1 = charging
           msgJson.lockerDoor = payload[3]; // 0 = closed, 1 = opened
           msgJson.paymentOption = payload[4]; // 0 = idle, 1-4 = payment options
-          console.log(msgJson);
+          // console.log(msgJson);
        
       }
   
@@ -78,7 +78,7 @@ export class MqttProvider {
       }
       if (msgJson.command === 240) {
         // 01 00 0A 01 00 00 00
-        console.log("Robika")
+   
         const dev_id = topic.split('/')[1];
         const payload = msgJson.payload;
       
@@ -126,7 +126,7 @@ export class MqttProvider {
 
                 const numBuffer = Buffer.alloc(1);
                 numBuffer.writeUInt8(item.value, 0);
-                console.log(numBuffer)
+              
                 payloadBufferList.push(numBuffer);
                 break;
             case 'number16':
@@ -138,6 +138,8 @@ export class MqttProvider {
                 const num32Buf = Buffer.alloc(4);
                 num32Buf.writeUInt32LE(item.value, 0);
                 payloadBufferList.push(num32Buf);
+                console.log(payloadBufferList)
+                console.log(num32Buf)
                 break;
 
         }

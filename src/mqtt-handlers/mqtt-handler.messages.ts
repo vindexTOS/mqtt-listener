@@ -140,15 +140,16 @@ export const FotaBeginCommand = (
 ): messageCommandType => {
   const [major, minor, patch] = version.split('.');
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`; // e.g. "100"
-
+//  Number(String(fileLength).split("").reverse().join(""))
   return {
     command: 250,
     payload: [
       { type: 'string', value: url },
       { type: 'number', value: 0 },
-      { type: 'string', value: versionStr},       
-      { type: 'number32', value: fileLength },
-      { type: 'number32', value: crc32 }
+      { type: 'string', value: versionStr},
+         { type: 'number', value: 0 },       
+      { type: 'number32', value:  fileLength  },
+      { type: 'number32', value: Number(crc32) }
     ]
   };
 };
