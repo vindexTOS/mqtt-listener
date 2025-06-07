@@ -141,6 +141,7 @@ export const FotaBeginCommand = (
   const [major, minor, patch] = version.split('.');
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`; // e.g. "100"
 //  Number(String(fileLength).split("").reverse().join(""))
+  const crcNumber = parseInt(String(crc32), 16);
   return {
     command: 250,
     payload: [
@@ -149,7 +150,7 @@ export const FotaBeginCommand = (
       { type: 'string', value: versionStr},
          { type: 'number', value: 0 },       
       { type: 'number32', value:  fileLength  },
-      { type: 'number32', value:  crc32  }
+      { type: 'number32', value: crcNumber   }
     ]
   };
 };
