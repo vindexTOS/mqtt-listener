@@ -134,13 +134,22 @@ export class MqttProvider {
                 num16Buffer.writeUInt16LE(item.value, 0);
                 payloadBufferList.push(num16Buffer);
                 break;
-            case 'number32':
-                const num32Buf = Buffer.alloc(4);
-                num32Buf.writeUInt32LE(item.value, 0);
-                payloadBufferList.push(num32Buf);
-                console.log(payloadBufferList)
-                console.log(num32Buf)
-                break;
+   case 'number32': {
+  const num32Buf = Buffer.alloc(4);
+
+  // If this is command 250, reverse only the LAST number32 (the CRC32)
+  if (command === 250 && payloadBufferList.length >= 4) {
+    // 👇 Special handling: the last number32 is CRC
+    num32Buf.writeUInt32BE(item.value, 0); // ✅ Big Endian
+    console.log('📦 [CRC32] Sent as BE:', num32Buf);
+  } else {
+    num32Buf.writeUInt32LE(item.value, 0); // ✅ Default Little Endian
+    console.log('📦 [number32] Sent as LE:', num32Buf);
+  }
+
+  payloadBufferList.push(num32Buf);
+  break;
+}
 
         }
     }
