@@ -144,9 +144,9 @@ export const FotaBeginCommand = (
   return {
     command: 250,
     payload: [
-      { type: 'string', value: "123" },
+      { type: 'string', value: url },
       { type: 'number', value: 0 },
-      { type: 'string', value:  "111"},       
+      { type: 'string', value: versionStr},       
       { type: 'number32', value: fileLength },
       { type: 'number32', value: crc32 }
     ]
