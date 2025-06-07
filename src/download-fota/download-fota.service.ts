@@ -33,16 +33,16 @@ export class DownloadFotaService {
       }
   
       // ✅ Calculate CRC32
-    const crc = CRC32.buf(file.buffer) >>> 0; 
-    const crcHex = crc.toString(16).toUpperCase().padStart(8, '0'); 
-    console.log(crc)
-        const fileLength = file.buffer.length;
-      const firmware = this.entityManager.create(FirmwareVersion, {
-        version,
-        file_url: `/uploads/fota/${filename}`,
-        crc32:String(crc), 
-     fileLength
-      });
+   const crc = CRC32.buf(file.buffer) >>> 0; // this is correct
+
+const fileLength = file.buffer.length;
+
+const firmware = this.entityManager.create(FirmwareVersion, {
+  version,
+  file_url: `/uploads/fota/${filename}`,
+  crc32: crc,        // ✅ store as real number
+  fileLength         // ✅ also number
+});
   
       await this.entityManager.save(FirmwareVersion, firmware);
       

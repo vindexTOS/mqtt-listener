@@ -149,7 +149,7 @@ export const FotaBeginCommand = (
       { type: 'string', value: versionStr},
          { type: 'number', value: 0 },       
       { type: 'number32', value:  fileLength  },
-      { type: 'number32', value: Number(crc32) }
+      { type: 'number32', value:  crc32  }
     ]
   };
 };
