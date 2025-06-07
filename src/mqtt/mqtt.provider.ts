@@ -134,13 +134,24 @@ export class MqttProvider {
                 num16Buffer.writeUInt16LE(item.value, 0);
                 payloadBufferList.push(num16Buffer);
                 break;
-            case 'number32':
-                const num32Buf = Buffer.alloc(4);
-                num32Buf.writeUInt32LE(item.value, 0);
-                payloadBufferList.push(num32Buf);
-                console.log(payloadBufferList)
-                console.log(num32Buf)
-                break;
+       case 'number32': {
+  const num32Buf = Buffer.alloc(4);
+
+  // Detect command 250 AND the last payload item = CRC
+  const isCommand250 = command === 250;
+  const isCRCField = isCommand250 && key === String(payload.length - 1);
+
+  if (isCRCField) {
+    num32Buf.writeUInt32BE(item.value, 0); // ✅ Only CRC is Big Endian
+    console.log('📦 [CRC32] Sent as BE:', num32Buf);
+  } else {
+    num32Buf.writeUInt32LE(item.value, 0); // ✅ Everything else stays LE
+    console.log('📦 [number32] Sent as LE:', num32Buf);
+  }
+
+  payloadBufferList.push(num32Buf);
+  break;
+}
 
         }
     }
