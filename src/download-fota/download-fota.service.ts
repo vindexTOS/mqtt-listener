@@ -10,18 +10,19 @@ import * as CRC32 from 'crc-32';
 @Injectable()
 export class DownloadFotaService {
   constructor(private readonly entityManager: EntityManager) {}
-crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
-  let crc = initial;
-
-  for (let i = 0; i < buffer.length; i++) {
-    crc ^= buffer[i];
-
-    for (let j = 0; j < 8; j++) {
-      crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
+private crc32Custom(buffer: Buffer): number {
+    let crc = 0xFFFFFFFF; // Initial value
+    const length = buffer.length;
+    
+    for (let i = 0; i < length; i++) {
+        const byte = buffer[i];
+        crc ^= byte;
+        for (let j = 0; j < 8; j++) {
+            crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
+        }
     }
-  }
-
-  return crc >>> 0; // ensure unsigned 32-bit
+    
+    return crc >>> 0; // Convert to unsigned 32-bit integer
 }
  async handleUpload(file: Express.Multer.File) {
   try {
