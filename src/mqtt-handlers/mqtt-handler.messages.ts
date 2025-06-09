@@ -140,12 +140,12 @@ export const FotaBeginCommand = (
 ): messageCommandType => {
   const [major, minor, patch] = version.split('.');
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`;
-  const crcValue = parseInt(crc32, 16);
+  // const crcValue = parseInt(crc32, 16);
   
-  // Convert CRC to Little Endian
-  const crcBuffer = Buffer.alloc(4);
-  crcBuffer.writeUInt32LE(crcValue, 0);
-  const crcLE = crcBuffer.readUInt32LE(0);
+  // // Convert CRC to Little Endian
+  // const crcBuffer = Buffer.alloc(4);
+  // crcBuffer.writeUInt32LE(crcValue, 0);
+  // const crcLE = crcBuffer.readUInt32LE(0);
 
   return {
     command: 250,
