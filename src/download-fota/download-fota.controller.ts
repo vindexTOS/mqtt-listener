@@ -74,4 +74,7 @@ export class DownloadFotaController {
   remove(@Param('id') id: string) {
     return this.downloadFotaService.remove(Number(id));
   }
+
+
+  
 }

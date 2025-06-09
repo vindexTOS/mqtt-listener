@@ -10,8 +10,66 @@ import * as CRC32 from 'crc-32';
 @Injectable()
 export class DownloadFotaService {
   constructor(private readonly entityManager: EntityManager) {}
-  private crc32Custom(buffer: Buffer): number {
-    let crc = 0xFFFFFFFF;
+
+
+
+testCRCFromWord(word: string) {
+  const buffer = Buffer.from(word, 'utf8'); // or 'ascii' if needed
+  const crc = this.crc32Custom(buffer);
+  const crcHex = crc.toString(16).toUpperCase().padStart(8, '0');
+  console.log(`🔍 Word: "${word}" → CRC32: ${crcHex}`);
+  return { word, crc, crcHex };
+}
+
+
+ async handleUpload(file: Express.Multer.File) {
+  try {
+    const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'fota');
+    const filename = file.originalname;
+    const filePath = path.join(uploadDir, filename);
+
+    fs.mkdirSync(uploadDir, { recursive: true });
+    fs.writeFileSync(filePath, file.buffer);
+
+    const reversedName = filename.split('').reverse().join('');
+    const version = reversedName.length >= 9 ? reversedName.slice(4, 9) : '0.0.0';
+
+    const originalBuffer = file.buffer;
+    const fileLength = originalBuffer.length;
+
+   
+    const crc = this.crc32Custom(originalBuffer);
+    const crcHex = crc.toString(16).toUpperCase().padStart(8, '0');
+    console.log('CRC (full buffer):', crcHex, crc);
+ 
+
+    
+ 
+    const firmware = this.entityManager.create(FirmwareVersion, {
+      version,
+      file_url: `/uploads/fota/${filename}`,
+      crc32: crcHex,
+      fileLength,
+    });
+
+    await this.entityManager.save(FirmwareVersion, firmware);
+
+    return {
+      message: 'Firmware uploaded successfully',
+      version,
+      file_url: firmware.file_url,
+      crc32: crcHex,
+      fileLength,
+    
+    };
+  } catch (err) {
+    throw new InternalServerErrorException('Upload failed: ' + err.message);
+  }
+}
+
+// Your crc32Custom function must be defined somewhere in the service:
+  private crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
+    let crc = initial;
     for (let i = 0; i < buffer.length; i++) {
       crc ^= buffer[i];
       for (let j = 0; j < 8; j++) {
@@ -19,52 +77,6 @@ export class DownloadFotaService {
       }
     }
     return crc >>> 0;
-  }
-
-  async handleUpload(file: Express.Multer.File) {
-    try {
-      const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'fota');
-      const filename = file.originalname;
-      const filePath = path.join(uploadDir, filename);
-
-      fs.mkdirSync(uploadDir, { recursive: true });
-      fs.writeFileSync(filePath, file.buffer);
-
-      const reversedName = filename.split('').reverse().join('');
-      const version = reversedName.length >= 9 ? reversedName.slice(4, 9) : '0.0.0';
-
-      const existing = await this.entityManager.findOne(FirmwareVersion, {
-        where: { version },
-      });
-
-      if (existing) {
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-        throw new ConflictException(`Version: ${version} already exists`);
-      }
-
-      const crc = this.crc32Custom(file.buffer);
-      const crcHex = crc.toString(16).toUpperCase().padStart(8, '0');
-      const fileLength = file.buffer.length;
-
-      const firmware = this.entityManager.create(FirmwareVersion, {
-        version,
-        file_url: `/uploads/fota/${filename}`,
-        crc32: crcHex,
-        fileLength
-      });
-
-      await this.entityManager.save(FirmwareVersion, firmware);
-
-      return {
-        message: 'Firmware uploaded successfully',
-        version,
-        file_url: firmware.file_url,
-        crc32: crcHex,
-        fileLength
-      };
-    } catch (err) {
-      throw new InternalServerErrorException('Upload failed: ' + err.message);
-    }
   }
   async findAll() {
     return  await this.entityManager.find(FirmwareVersion);

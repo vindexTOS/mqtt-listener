@@ -63,7 +63,7 @@ export class MqttHandlersProviders {
       }
       case 'UpdateFirmware': {
         const {url, version, crc32, fileLength} = passedPayload
-        const commandPayload = FotaBeginCommand(url, version, crc32, fileLength);
+        const commandPayload = FotaBeginCommand(url, version, crc32,fileLength );
         const payload = this.generatePayload(
           commandPayload.command,
           commandPayload.payload,
