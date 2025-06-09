@@ -24,6 +24,11 @@ testCRCFromWord(word: string) {
 
  async handleUpload(file: Express.Multer.File) {
   try {
+
+
+
+
+
     const uploadDir = path.join(__dirname, '..', '..', 'uploads', 'fota');
     const filename = file.originalname;
     const filePath = path.join(uploadDir, filename);
@@ -32,7 +37,13 @@ testCRCFromWord(word: string) {
     fs.writeFileSync(filePath, file.buffer);
 
     const reversedName = filename.split('').reverse().join('');
-    const version = reversedName.length >= 9 ? reversedName.slice(4, 9) : '0.0.0';
+   
+    const versionRevers = reversedName.length >= 9 ? reversedName.slice(4, 9) : '0.0.0';
+    const version = versionRevers.split("").reverse().join("")
+      const isFirmwareExist = await this.entityManager.findOne(FirmwareVersion, { where: { version } });
+    if (isFirmwareExist) {
+      throw new ConflictException(`Firmware with version ${version} already exists.`);
+    }
 
     const originalBuffer = file.buffer;
     const fileLength = originalBuffer.length;
@@ -46,9 +57,9 @@ testCRCFromWord(word: string) {
     
  
     const firmware = this.entityManager.create(FirmwareVersion, {
-      version,
+      version:version,
       file_url: `/uploads/fota/${filename}`,
-      crc32: crcHex,
+      crc32: String(crc),
       fileLength,
     });
 
@@ -56,13 +67,16 @@ testCRCFromWord(word: string) {
 
     return {
       message: 'Firmware uploaded successfully',
-      version,
+   version:version,
       file_url: firmware.file_url,
-      crc32: crcHex,
+      crc32: crc,
       fileLength,
     
     };
   } catch (err) {
+    if(err instanceof  ConflictException){
+      throw new ConflictException( err);
+    }
     throw new InternalServerErrorException('Upload failed: ' + err.message);
   }
 }
