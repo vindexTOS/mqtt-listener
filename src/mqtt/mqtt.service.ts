@@ -94,7 +94,7 @@ export class MqttService implements OnModuleInit, OnModuleDestroy {
   // console.log('📡 Publishing to MQTT topic:', topic);
   // console.log('🧾 Raw Payload Buffer:', payload);
   // console.log('🧾 Payload as HEX:', payload.toString('hex'));
-  
+  console.log("SLING SHOT",payload )
   // 🔍 LOGGING ENDS HERE
 
     this.client.publish(topic, payload, { qos: 1 }, (err) => {
