@@ -160,8 +160,8 @@ export const FotaBeginCommand = (
       { type: 'number', value: 0 },
       { type: 'string', value: versionStr },
       { type: 'number', value: 0 },
-      { type: 'number32', value: fileLength },
-      { type: 'timestamp', value:1599853334}
+      { type: 'timestamp', value: fileLength },
+      { type: 'timestamp', value:crc32}
     ]
   };
 };
