@@ -143,7 +143,9 @@ function reverseCrcBytes(crc: number): number {
 }
 export const FotaBeginCommand = async (
   url: string,
-  version: string
+  version: string,
+  crc32: string,
+  fileLength: number
 ): Promise<messageCommandType> => {
   const [major, minor, patch] = version.split('.');
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`;
@@ -153,7 +155,7 @@ export const FotaBeginCommand = async (
   const fileBuffer = Buffer.from(await response.arrayBuffer());
 
   // 2. Get file size (in bytes)
-  const fileLength = fileBuffer.length;
+  const fileLengthNew = fileBuffer.length;
 
   // 3. Calculate CRC32 (same as PHP logic, no final inversion)
   const crc = crc32Custom(fileBuffer, 0xFFFFFFFF);
@@ -165,7 +167,7 @@ export const FotaBeginCommand = async (
       { type: 'number', value: 0 },
       { type: 'string', value: versionStr },
       { type: 'number', value: 0 },
-      { type: 'timestamp', value: fileLength },
+      { type: 'timestamp', value: fileLengthNew },
       { type: 'timestamp', value: crc }
     ]
   };
