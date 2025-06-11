@@ -146,7 +146,7 @@ testCRCFromWord(word: string) {
     const fileStream = fs.createReadStream(filePath);
     return new StreamableFile(fileStream, {
       type: 'application/octet-stream',
-      disposition: `attachment; filename="${version}.bin"`,
+      disposition: `attachment; filename="Smart_Locker_Ver${version}.bin"`,
     });
   }
 }

@@ -113,11 +113,10 @@ export class MqttProvider {
           payloadBufferList.push(Buffer.from(item.value, 'utf8'));
           break;
         case 'timestamp':
-          const timeBuffer = Buffer.alloc(4);
-          timeBuffer.writeUInt32LE(item.value, 0);
-          payloadBufferList.push(timeBuffer);
-          console.log('IDUBBBZ', timeBuffer);
-          break;
+      const timeBuffer = Buffer.alloc(4);
+                timeBuffer.writeUInt32LE(item.value, 0);
+                payloadBufferList.push(timeBuffer);
+                break;
         case 'number':
           const numBuffer = Buffer.alloc(1);
           numBuffer.writeUInt8(item.value, 0);

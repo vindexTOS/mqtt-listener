@@ -1,5 +1,5 @@
 import { CreateAppConfigDto, CreateAppExt1ConfigDto, OpenDoorDto, ResetLockerPasswordDto } from "src/device/dto/commands.dto"
-
+ 
 export type messageCommandKeyValueType = {
   type: 'string' | 'number' | 'number16' | "number32" | 'timestamp' | 'buffer',
   value: string | number | Buffer
@@ -131,7 +131,14 @@ export const StorageResetOptions: { key: string; value: number }[] = [
   { key: "System config reset", value: 64 },
   { key: "Reset all", value: 255 },
 ];
-
+function reverseCrcBytes(crc: number): number {
+  return (
+    ((crc & 0xFF) << 24) |
+    ((crc & 0xFF00) << 8) |
+    ((crc & 0xFF0000) >> 8) |
+    ((crc & 0xFF000000) >>> 24)
+  );
+}
 export const FotaBeginCommand = (
   url: string,
   version: string,
@@ -140,13 +147,12 @@ export const FotaBeginCommand = (
 ): messageCommandType => {
   const [major, minor, patch] = version.split('.');
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`;
-  // const crcValue = parseInt(crc32, 16);
-  
-  // // Convert CRC to Little Endian
-  // const crcBuffer = Buffer.alloc(4);
-  // crcBuffer.writeUInt32LE(crcValue, 0);
-  // const crcLE = crcBuffer.readUInt32LE(0);
 
+  // Convert back from little-endian (if stored that way)
+  // const crcNumber = Number(crc32);
+  const crcNumber = Number("4100175324");
+  const crcCorrected = reverseCrcBytes(crcNumber);
+ 
   return {
     command: 250,
     payload: [
@@ -155,7 +161,7 @@ export const FotaBeginCommand = (
       { type: 'string', value: versionStr },
       { type: 'number', value: 0 },
       { type: 'number32', value: fileLength },
-      { type: 'timestamp', value: crc32 }  // Use Little Endian CRC
+      { type: 'timestamp', value: crc32}
     ]
   };
 };
