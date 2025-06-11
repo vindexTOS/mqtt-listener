@@ -12,7 +12,7 @@ import * as path from 'path';
 import { EntityManager } from 'typeorm';
 import { FirmwareVersion } from 'src/device/entities/firmware.entity';
 import * as CRC32 from 'crc-32';
-
+import { Response } from 'express';
 @Injectable()
 export class DownloadFotaService {
   constructor(private readonly entityManager: EntityManager) {}
@@ -155,4 +155,27 @@ export class DownloadFotaService {
       disposition: `attachment; filename="Smart_Locker_Ver${version}.bin"`,
     });
   }
+
+
+  async downloadFileRaw(version: string, res: Response): Promise<void> {
+  const firmware = await this.entityManager.findOne(FirmwareVersion, {
+    where: { version },
+  });
+
+  if (!firmware) {
+    throw new NotFoundException(`Firmware version ${version} not found`);
+  }
+
+  const filePath = path.join(__dirname, '..', '..', firmware.file_url);
+  if (!fs.existsSync(filePath)) {
+    throw new NotFoundException(`Firmware file not found on server`);
+  }
+
+  const fileBuffer = fs.readFileSync(filePath); // Read whole file into memory (no stream)
+  res.setHeader('Content-Type', 'application/octet-stream');
+  res.setHeader('Content-Disposition', `attachment; filename="Smart_Locker_Ver${version}.bin"`);
+  res.setHeader('Content-Length', fileBuffer.length); // Ensure NO chunked encoding
+
+  res.send(fileBuffer); // Send raw binary
+}
 }

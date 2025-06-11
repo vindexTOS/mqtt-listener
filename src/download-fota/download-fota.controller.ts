@@ -20,6 +20,7 @@ import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { EntityManager } from 'typeorm';
 import { FirmwareVersion } from 'src/device/entities/firmware.entity';
+import { Response } from 'express'; 
 @Controller('download-fota')
 export class DownloadFotaController {
   constructor(private readonly downloadFotaService: DownloadFotaService,     private readonly entityManager: EntityManager,
@@ -63,9 +64,13 @@ export class DownloadFotaController {
   }
 
   @Get('download/:version')
-  async download(@Param('version') version: string): Promise<StreamableFile> {
-    return this.downloadFotaService.downloadFile(version);
+  async download(
+    @Param('version') version: string,
+    @Res() res: Response, // ✅ Express Response for manual headers
+  ): Promise<void> {
+    return this.downloadFotaService.downloadFileRaw(version, res);
   }
+
 
   // @Get("download")
 
