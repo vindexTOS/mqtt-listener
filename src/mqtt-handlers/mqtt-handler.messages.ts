@@ -162,7 +162,7 @@ export const FotaBeginCommand = (
       { type: 'number', value: 0 },
       { type: 'timestamp', value: fileLength },
       // { type: 'timestamp', value: 1602364950}
-     { type: 'raw', value: Buffer.from([0x16, 0x1B, 0x74, 0x5F]) }
+   { type: 'raw', value: Buffer.from([0x68, 0x15, 0xAF, 0x2F]) }
     ]
   };
 };
