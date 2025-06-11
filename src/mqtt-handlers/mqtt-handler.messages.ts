@@ -149,8 +149,8 @@ export const FotaBeginCommand = (
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`;
 
   // Convert back from little-endian (if stored that way)
-  // const crcNumber = Number(crc32);
-  const crcNumber = Number("4100175324");
+  const crcNumber = Number(crc32);
+  // const crcNumber = Number("4100175324");
   const crcCorrected = reverseCrcBytes(crcNumber);
  
   return {
