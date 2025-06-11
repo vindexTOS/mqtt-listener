@@ -20,7 +20,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 export class MqttHandlersProviders {
   // publish message
   constructor(private readonly eventEmitter: EventEmitter2) {}
-  handlePublishMessage(typeName: string, dev_id: string, passedPayload?: any) {
+  async handlePublishMessage(typeName: string, dev_id: string, passedPayload?: any) {
     switch (typeName) {
       //   case 'NoServiceMessage': {
       //     const payload = this.generatePayload(
@@ -61,15 +61,18 @@ export class MqttHandlersProviders {
         );
         return this.publishMessage(dev_id, payload);
       }
-      case 'UpdateFirmware': {
-        const {url, version, crc32, fileLength} = passedPayload
-        const commandPayload = FotaBeginCommand(url, version, crc32,fileLength );
-        const payload = this.generatePayload(
-          commandPayload.command,
-          commandPayload.payload,
-        );
-        return this.publishMessage(dev_id, payload);
-      }
+   case 'UpdateFirmware': {
+  const { url, version, crc32, fileLength } = passedPayload;
+
+  const commandPayload = await FotaBeginCommand(url, version, crc32, fileLength); // ← await it!
+
+  const payload = this.generatePayload(
+    commandPayload.command,
+    commandPayload.payload,
+  );
+
+  return this.publishMessage(dev_id, payload);
+}
       case 'SendAppConfig': {
    
         const commandPayload = SendAppConfigCommand(passedPayload);
