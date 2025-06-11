@@ -1,5 +1,7 @@
 import { CreateAppConfigDto, CreateAppExt1ConfigDto, OpenDoorDto, ResetLockerPasswordDto } from "src/device/dto/commands.dto"
  
+ import fetch from 'node-fetch';
+
 export type messageCommandKeyValueType = {
   type: 'string' | 'number' | 'number16' | "number32" | 'timestamp' | 'buffer' | 'raw',
   value: string | number | Buffer
@@ -139,20 +141,23 @@ function reverseCrcBytes(crc: number): number {
     ((crc & 0xFF000000) >>> 24)
   );
 }
-export const FotaBeginCommand = (
+export const FotaBeginCommand = async (
   url: string,
-  version: string,
-  crc32: string,
-  fileLength: number
-): messageCommandType => {
+  version: string
+): Promise<messageCommandType> => {
   const [major, minor, patch] = version.split('.');
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`;
 
-  // Convert back from little-endian (if stored that way)
-  const crcNumber = Number(crc32);
-  // const crcNumber = Number("4100175324");
-  const crcCorrected = reverseCrcBytes(crcNumber);
- 
+  // 1. Fetch raw file from URL
+  const response = await fetch(url);
+  const fileBuffer = Buffer.from(await response.arrayBuffer());
+
+  // 2. Get file size (in bytes)
+  const fileLength = fileBuffer.length;
+
+  // 3. Calculate CRC32 (same as PHP logic, no final inversion)
+  const crc = crc32Custom(fileBuffer, 0xFFFFFFFF);
+
   return {
     command: 250,
     payload: [
@@ -161,11 +166,22 @@ export const FotaBeginCommand = (
       { type: 'string', value: versionStr },
       { type: 'number', value: 0 },
       { type: 'timestamp', value: fileLength },
-      // { type: 'timestamp', value: 1602364950}
-   { type: 'raw', value: Buffer.from([0x68, 0x15, 0xAF, 0x2F]) }
+      { type: 'timestamp', value: crc }
     ]
   };
 };
+
+// C-style CRC32 like in your PHP code
+function crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
+  let crc = initial;
+  for (let i = 0; i < buffer.length; i++) {
+    crc ^= buffer[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
+    }
+  }
+  return crc >>> 0; // No final inversion — same as your PHP
+}
 //👈 now 1 string like '100'
 export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommandType => {
   return {
