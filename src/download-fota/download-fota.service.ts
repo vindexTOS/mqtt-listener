@@ -82,16 +82,16 @@ testCRCFromWord(word: string) {
 }
 
 // Your crc32Custom function must be defined somewhere in the service:
-  private crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
-    let crc = initial;
-    for (let i = 0; i < buffer.length; i++) {
-      crc ^= buffer[i];
-      for (let j = 0; j < 8; j++) {
-        crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
-      }
+private crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
+  let crc = initial;
+  for (let i = 0; i < buffer.length; i++) {
+    crc ^= buffer[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
     }
-    return crc >>> 0;
   }
+  return (~crc) >>> 0; // ✅ Invert CRC for compatibility with C
+}
   async findAll() {
     return  await this.entityManager.find(FirmwareVersion);
   }
