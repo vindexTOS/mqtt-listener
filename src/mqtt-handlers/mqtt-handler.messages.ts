@@ -161,7 +161,7 @@ export const FotaBeginCommand = (
       { type: 'string', value: versionStr },
       { type: 'number', value: 0 },
       { type: 'number32', value: fileLength },
-      { type: 'timestamp', value:crcCorrected}
+      { type: 'timestamp', value:1599853334}
     ]
   };
 };
