@@ -1,7 +1,7 @@
 import { CreateAppConfigDto, CreateAppExt1ConfigDto, OpenDoorDto, ResetLockerPasswordDto } from "src/device/dto/commands.dto"
  
 export type messageCommandKeyValueType = {
-  type: 'string' | 'number' | 'number16' | "number32" | 'timestamp' | 'buffer',
+  type: 'string' | 'number' | 'number16' | "number32" | 'timestamp' | 'buffer' | 'raw',
   value: string | number | Buffer
 }
 
@@ -161,7 +161,8 @@ export const FotaBeginCommand = (
       { type: 'string', value: versionStr },
       { type: 'number', value: 0 },
       { type: 'timestamp', value: fileLength },
-      { type: 'timestamp', value: 1602364950}
+      // { type: 'timestamp', value: 1602364950}
+     { type: 'raw', value: Buffer.from([0x16, 0x1B, 0x74, 0x5F]) }
     ]
   };
 };

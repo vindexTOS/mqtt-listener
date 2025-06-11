@@ -148,6 +148,9 @@ export class MqttProvider {
           payloadBufferList.push(num32Buf);
           break;
         }
+        case 'raw':
+  payloadBufferList.push(item.value);
+  break;
       }
     }
 
