@@ -131,33 +131,20 @@ async findOne(id: number) {
       if (!device) {
         throw new NotFoundException(`Device with ID ${id} not found`);
       }
-
-      const settings = await this.entityManager.findOne(DeviceSettings, {
-        where: { device: { id } },
-      });
-
-      const messages = await this.entityManager.findOne(DeviceMessages, {
-        where: { device: { id } },
-      });
+ 
+ 
 
       device.dev_id = updateDeviceDto.dev_id;
       device.name = updateDeviceDto.name;
 
-      if (settings) {
-        settings.soft_version = updateDeviceDto.soft_version;
-        settings.hardware_version = updateDeviceDto.hardware_version;
-        settings.network = updateDeviceDto.network;
-        settings.signal = updateDeviceDto.signal;
-
-        await this.entityManager.save(DeviceSettings, settings);
-      }
+    
 
       await this.entityManager.save(Device, device);
 
       return {
         ...device,
-        settings,
-        messages,
+   
+    
       };
     } catch (error) {
       throw new InternalServerErrorException(error.message);
