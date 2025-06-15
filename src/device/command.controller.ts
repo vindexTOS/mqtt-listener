@@ -123,6 +123,7 @@ export class CommandController {
         fineAmountPerMinute,
         doorAutoCloseTimeMs,
         menuTimeoutMs,
+          service1Time: services[0].time,
         service2Time: services[1].time,
         service3Time: services[2].time,
         service4Time: services[3].time,
