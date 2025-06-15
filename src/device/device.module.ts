@@ -3,11 +3,13 @@ import { DeviceService } from './device.service';
 import { DeviceController } from './device.controller';
 import { MqttHandlersModule } from 'src/mqtt-handlers/mqtt-handlers.module';
 import { CommandController } from './command.controller';
+import { EarningsService } from './earnings/earnings.service';
+import { EarningsController } from './earnings/earnings.controller';
  
 
 @Module({
   imports:[MqttHandlersModule],
-  controllers: [DeviceController, CommandController],
-  providers: [DeviceService],
+  controllers: [DeviceController, CommandController, EarningsController],
+  providers: [DeviceService, EarningsService],
 })
 export class DeviceModule {}

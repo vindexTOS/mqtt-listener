@@ -1,30 +1,23 @@
-import { UnauthorizedException } from "@nestjs/common";
-import { PassportStrategy } from "@nestjs/passport";
-import { ExtractJwt, Strategy } from "passport-jwt";
  
- export type userPaylaod = {
-     emaiL:string ,
-     id:string 
-     phone_number:string
-     iat:number 
-     exp:number
- }
-export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
-    constructor() {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: 'mqtt-listener'
-        });
-    }
+import { Injectable } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-    async validate(payload: userPaylaod) {
-         const { iat, exp, ...filteredPayload } = payload;
+@Injectable()
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor() {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: process.env.JWT_SECRET,
+    });
+  }
 
-         if (!filteredPayload) {
-            throw new UnauthorizedException("Invalid token payload.");
-        }
-
-        return filteredPayload;
-    }
+  async validate(payload: any) {
+   
+    console.log('✅ JWT payload:', payload);
+    return { id: payload.id, username: payload.username };
+  }
 }

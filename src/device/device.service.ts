@@ -5,16 +5,15 @@ import {
 } from '@nestjs/common';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { EntityManager, Like, Not, Repository } from 'typeorm';
+ import { Between, EntityManager, LessThanOrEqual, Like, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { DeviceMessages } from './entities/device-messages.entity';
 import { Device } from './entities/device.entity';
 import { DeviceSettings } from './entities/device-settings.entity';
-import { MessagePattern } from '@nestjs/microservices';
-import { UnregisteredDevice } from './entities/device-unregistered.entity';
+ import { UnregisteredDevice } from './entities/device-unregistered.entity';
 import * as crypto from 'crypto';
 import { MqttHandlersProviders } from 'src/mqtt-handlers/mqtt-handlers.provider';
 import { DeviceLockers } from './entities/device-lockers.entity';
+import { DeviceErrorLog } from './entities/device-errors.entity';
 @Injectable()
 export class DeviceService {
   constructor(
@@ -74,11 +73,9 @@ export class DeviceService {
       if (dev_id) where.dev_id = Like(`%${dev_id}%`);
       if (id) where.id = id;
 
-      // Step 1: Get devices matching filters
-      const devices = await this.entityManager.find(Device, { where });
+       const devices = await this.entityManager.find(Device, { where });
 
-      // Step 2: For each device, fetch and attach settings
-      for (const device of devices) {
+       for (const device of devices) {
         const settings = await this.entityManager.findOne(DeviceSettings, {
           where: { device: { id: device.id } },
         });
@@ -171,8 +168,7 @@ async findOne(id: number) {
       throw new InternalServerErrorException(error.message);
     }
   }
-  //  unregisted device
-
+ 
   async getUnregisteredDevices() {
     try {
       return { data: await this.entityManager.find(UnregisteredDevice) };
@@ -270,5 +266,31 @@ async findOne(id: number) {
         throw new NotFoundException(error);
       throw new InternalServerErrorException(error.message);
     }
+  }
+
+
+  async getDeviceErrors(query:any){
+   try {
+       const { device_id, fromDate, toDate } = query;
+
+    const where: any = {};
+       
+          if (device_id) where.device_id= Like(`%${device_id}%`);
+       
+           if (fromDate && toDate) {
+             where.created_at = Between(new Date(fromDate), new Date(toDate));
+           } else if (fromDate) {
+             where.created_at = MoreThanOrEqual(new Date(fromDate));
+           } else if (toDate) {
+             where.created_at = LessThanOrEqual(new Date(toDate));
+           }
+
+           const errors = await this.entityManager.find(DeviceErrorLog,{ where})
+
+           return errors
+   } catch (error) {
+        throw new InternalServerErrorException(error.message);
+   }
+
   }
 }

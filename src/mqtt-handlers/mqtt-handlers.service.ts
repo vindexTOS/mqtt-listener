@@ -86,12 +86,12 @@ async heartBeatHandler(data: MqttPayload): Promise<any> {
   where: { device: { id: device.id } },
 });
 
-if (!deviceSettings?.isBlocked && payload.command === 1) {
+if (  payload.command === 1) {
  const deviceSettings = await this.entityManager.findOne(DeviceSettings, {
   where: { device: { id: device.id } },
 });
 
-if (!deviceSettings?.isBlocked && payload.command === 1) {
+if (  payload.command === 1) {
   // 66 1F A9 12 01 02 e8 03                         1000 tetri satestod 
   this.updateEarnings(device, payload.amount)
      this.createPayment(device.id,   "succeed", payload.amount, "inserted", "payment")
@@ -99,7 +99,7 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
 }
 }
 
- if(!deviceSettings?.isBlocked && payload.command === 2){
+ if( payload.command === 2){
    // 66 1F A9 12 02 02 01 01 e8 03
    const { amount, operationCode, operationStatus } = payload;
    const status = paymentStatus[operationStatus];
@@ -125,7 +125,7 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
  }
 
 
-  if (!deviceSettings.isBlocked && payload.command == 3) {
+  if (  payload.command == 3) {
     // 66 1F A9 12 03 04 01 01 00 02
 
     //  Lockerstatus	true	Locker is Busy
@@ -153,7 +153,7 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
 
 
 
-    if (!deviceSettings.isBlocked && payload.command === 4) {
+    if ( payload.command === 4) {
       // 66 1F A9 12 04 01 0A   test hex data for command 4
       //           alarm_tilt_sensor                      = false
       // alarm_door_sensor                      = true
@@ -176,7 +176,7 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
   
 
 
-    if (!deviceSettings.isBlocked && payload.command === 254) {
+    if (  payload.command === 254) {
       // 66 1F A9 12 FE 01 03
 
       // Locker/10500031414D501220313243/events/general
@@ -202,7 +202,7 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
       this.logger.debug(`❌ DEVICE ERROR [${device.dev_id}] → ${message} (code ${errorByte})`);
     }
 
-    if (!deviceSettings.isBlocked && payload.command === 240){
+    if (  payload.command === 240){
       //  F0 07 01 30 30 41 01 00 00
       const {device_type,hardware_version ,software_version} = payload
         console.log(payload)
@@ -272,51 +272,7 @@ if (!deviceSettings?.isBlocked && payload.command === 1) {
         break;
     }
   }
-  // private async handleUnregisteredDevice(dev_id: string, payload: any) {
-  //   let unregisteredDevice = await this.entityManager.findOne(UnregisteredDevice, {
-  //     where: { dev_id },
-  //   });
-
-  //   switch (payload.command) {
-  //     case 253:
-  //       await this.registerOrUpdateUnregisteredDevice(unregisteredDevice, dev_id, payload);
-  //       break;
-
-  //     default:
-  //       if (!unregisteredDevice) {
-  //         const newDevice = this.entityManager.create(UnregisteredDevice, {
-  //           dev_id,
-  //           soft_version: "0.0.0",
-  //           hardware_version: "0.0.0",
-  //         });
-  //         await this.entityManager.save(newDevice);
-  //       }
-  //       break;
-  //   }
-  // }
-
-  // private async registerOrUpdateUnregisteredDevice(
-  //   unregisteredDevice: UnregisteredDevice | null,
-  //   dev_id: string,
-  //   payload: any,
-  // ) {
-  //   const hardware_version = payload?.payload?.substring(0, 3) || '0.0';
-  //   const soft_version = payload?.payload?.substring(3, 6) || '0.0';
-
-  //   if (unregisteredDevice) {
-  //     unregisteredDevice.hardware_version = hardware_version;
-  //     unregisteredDevice.soft_version = soft_version;
-  //     await this.entityManager.save(unregisteredDevice);
-  //   } else {
-  //     const newDevice = this.entityManager.create(UnregisteredDevice, {
-  //       dev_id,
-  //       hardware_version,
-  //       soft_version,
-  //     });
-  //     await this.entityManager.save(newDevice);
-  //   }
-  // }
-
+ 
   private async updateEarnings(device:Device  , amount:number){
      const todaysDate = moment().tz('Asia/Tbilisi');
 

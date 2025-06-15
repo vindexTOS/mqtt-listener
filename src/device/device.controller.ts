@@ -1,9 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, UseGuards } from '@nestjs/common';
 import { DeviceService } from './device.service';
 import { CreateDeviceDto } from './dto/create-device.dto';
 import { UpdateDeviceDto } from './dto/update-device.dto';
+import { JwtAuthGuard } from 'src/libs/auth-guard/AuthGuard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('device')
+
 export class DeviceController {
   constructor(private readonly deviceService: DeviceService) { }
 
@@ -13,7 +16,7 @@ export class DeviceController {
   }
 
  
-
+  
   @Get('get-all')
   async findAll(@Query() query: any) {
     return await this.deviceService.findAll(query);
@@ -53,7 +56,10 @@ export class DeviceController {
     return await this.deviceService.deleteRegisteredDevice(dev_id)
   }
 
-
+  @Get("errors")
+  async getDeviceErrors(@Query()query:any){
+    return await this.deviceService.getDeviceErrors(query)
+  }
  
 
 }

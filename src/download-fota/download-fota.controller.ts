@@ -11,6 +11,7 @@ import {
   NotFoundException,
   Res,
   StreamableFile,
+  UseGuards,
 } from '@nestjs/common';
 import { DownloadFotaService } from './download-fota.service';
 import { CreateDownloadFotaDto } from './dto/create-download-fota.dto';
@@ -21,34 +22,17 @@ import { diskStorage } from 'multer';
 import { EntityManager } from 'typeorm';
 import { FirmwareVersion } from 'src/device/entities/firmware.entity';
 import { Response } from 'express'; 
+import { JwtAuthGuard } from 'src/libs/auth-guard/AuthGuard';
 @Controller('download-fota')
 export class DownloadFotaController {
   constructor(private readonly downloadFotaService: DownloadFotaService,     private readonly entityManager: EntityManager,
   )  {}
 
-  // @Post()
-  // @UseInterceptors(
-  //   FileInterceptor('firmware', {
-  //     storage: diskStorage({
-  //       destination: './uploads/fota',
-  //       filename: (req, file, cb) => {
-  //         const filename = `${file.originalname}`;
-  //         cb(null, filename);
-  //       },
-  //     }),
-  //   }),
-  // )
-  // async create(
-  //   @UploadedFile() file: Express.Multer.File,
-  //   @Body() createDownloadFotaDto: CreateDownloadFotaDto,
-  // ) {
-    
+ 
 
 
-
-  //   return 'HELLOO IT OWKRED';
-  // }
-
+ 
+  @UseGuards(JwtAuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('firmware'))
   async create(
@@ -57,7 +41,7 @@ export class DownloadFotaController {
   ) {
     return await this.downloadFotaService.handleUpload(file );
   }
-
+   @UseGuards(JwtAuthGuard)
   @Get()
   findAll() {
     return this.downloadFotaService.findAll();
@@ -74,7 +58,7 @@ export class DownloadFotaController {
 
   // @Get("download")
 
-  
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.downloadFotaService.remove(Number(id));

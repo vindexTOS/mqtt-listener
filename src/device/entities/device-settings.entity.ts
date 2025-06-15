@@ -66,8 +66,7 @@ export class DeviceSettings {
  
 
 
-  @Column({ type: Number, default: 1, nullable: true })
-  startup: number;
+ 
   @Column({ type: Number, default:30000, nullable: true })
   paymentLimit: number;
 
@@ -82,14 +81,11 @@ export class DeviceSettings {
   @Column({ type: Number, default:1000, nullable: true })
   menuTimeoutMs: number;
 
-  @Column({ type: Number, default:0, nullable: true })
-  uiMode: number;
+ 
 
-  @Column({ type: Number, default:0, nullable: true })
-  retryCount: number;
+ 
 
-  @Column({ type: Number, default:0, nullable: true })
-  ledBrightness: number;
+ 
 
   @Column({ type: Number, default:100, nullable: true })
   inactivityReset: number;
@@ -121,8 +117,7 @@ export class DeviceSettings {
 
   @Column({ type: Number, default: 0, nullable: true })
   sim_card_number: number;
-  @Column({ type: Number, default: 0, nullable: true })
-  isBlocked: number;
+ 
   @CreateDateColumn()
   createdAt: Date;
 

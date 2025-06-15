@@ -150,15 +150,12 @@ export const FotaBeginCommand = async (
   const [major, minor, patch] = version.split('.');
   const versionStr = `${major.charAt(0)}${minor.charAt(0)}${patch.charAt(0)}`;
 
-  // 1. Fetch raw file from URL
-  const response = await fetch(url);
+   const response = await fetch(url);
   const fileBuffer = Buffer.from(await response.arrayBuffer());
 
-  // 2. Get file size (in bytes)
-  const fileLengthNew = fileBuffer.length;
+   const fileLengthNew = fileBuffer.length;
 
-  // 3. Calculate CRC32 (same as PHP logic, no final inversion)
-  const crc = crc32Custom(fileBuffer, 0xFFFFFFFF);
+   const crc = crc32Custom(fileBuffer, 0xFFFFFFFF);
 
   return {
     command: 250,
@@ -173,8 +170,7 @@ export const FotaBeginCommand = async (
   };
 };
 
-// C-style CRC32 like in your PHP code
-function crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
+ function crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
   let crc = initial;
   for (let i = 0; i < buffer.length; i++) {
     crc ^= buffer[i];
@@ -182,20 +178,20 @@ function crc32Custom(buffer: Buffer, initial = 0xFFFFFFFF): number {
       crc = (crc >>> 1) ^ ((crc & 1) ? 0xEDB88320 : 0);
     }
   }
-  return crc >>> 0; // No final inversion — same as your PHP
+  return crc >>> 0;  
 }
-//👈 now 1 string like '100'
+ 
 export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommandType => {
   return {
-    command: 240, // 0xF0
+    command: 240, 
     payload: [
-      { type: 'number16', value: params.startup },                // UINT16
-      { type: 'number16', value: params.paymentLimit },           // UINT16
-      { type: 'number16', value: params.fineAmountPerMinute },    // UINT16
-      { type: 'number32', value: params.doorAutoCloseTimeMs },    // UINT32
-      { type: 'number32', value: params.menuTimeoutMs },          // UINT32
+      { type: 'number16', value: params.startup },                 
+      { type: 'number16', value: params.paymentLimit },           
+      { type: 'number16', value: params.fineAmountPerMinute },    
+      { type: 'number32', value: params.doorAutoCloseTimeMs },    
+      { type: 'number32', value: params.menuTimeoutMs },          
 
-      // Services (each: time=UINT32, amount=UINT32)
+    
       { type: 'number32', value: params.services[0].time },
       { type: 'number32', value: params.services[0].amount },
       { type: 'number32', value: params.services[1].time },
@@ -214,7 +210,7 @@ export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messag
   const maxPasswordLength = 124; // Maximum length for Password
 
   // Calculate how much space is left for ssid and password
-  const payloadLength = 7; // Total number of other fields before ssid and password (adjust if necessary)
+  // const payloadLength = 7; // Total number of other fields before ssid and password (adjust if necessary)
   
   // Trim SSID and Password to fit within the remaining space
   const ssid = config.ssid.substring(0, maxSsidLength);

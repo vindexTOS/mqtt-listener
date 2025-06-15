@@ -6,6 +6,8 @@ import { Auth } from './entities/auth.entity';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/libs/jwt/jwt.strategy';
+import * as dotenv from 'dotenv';
+dotenv.config()
 
 @Module({
   controllers: [AuthController],
@@ -14,7 +16,7 @@ import { JwtStrategy } from 'src/libs/jwt/jwt.strategy';
    
     PassportModule,
     JwtModule.register({
-      secret: 'mqtt',  
+      secret: process.env.JWT_SECRET,  
       signOptions: { expiresIn: '30d' },
     }),
   ],

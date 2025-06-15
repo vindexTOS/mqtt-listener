@@ -12,4 +12,6 @@ export class Auth {
   
     @Column()
     password: string;
+
+    
 }

@@ -9,6 +9,7 @@ import {
   Query,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import { StorageResetOptions } from 'src/mqtt-handlers/mqtt-handler.messages';
 import { MqttHandlersProviders } from 'src/mqtt-handlers/mqtt-handlers.provider';
@@ -28,8 +29,10 @@ import { EntityManager } from 'typeorm';
 import { Device } from './entities/device.entity';
 import { DeviceLockers } from './entities/device-lockers.entity';
 import { FirmwareVersion } from './entities/firmware.entity';
+import { JwtAuthGuard } from 'src/libs/auth-guard/AuthGuard';
 
 dotenv.config();
+@UseGuards(JwtAuthGuard)
 @Controller('commands')
 export class CommandController {
   constructor(
@@ -37,11 +40,7 @@ export class CommandController {
     private readonly entetieManager: EntityManager,
   ) {}
 
-  //   @Post("sendCommand")
-  //   async sendMessage(){
-  //      return await this.commandService.sendCommandToDevice("4324442", )
-  //   }
-
+ 
   @Get('reset-command-options')
   async sendResetCommandOptions() {
     return StorageResetOptions;
@@ -73,8 +72,7 @@ export class CommandController {
     const { version,  crc32, fileLength } = firmWare;
 
     const url = `http://116.203.146.251/download-fota/download/${version}`
-    // const url = `${'http://localhost:3000'}/download-fota/download/${version}`;
-    return await this.mqttHandlerProvider.handlePublishMessage(
+     return await this.mqttHandlerProvider.handlePublishMessage(
       'UpdateFirmware',
       dev_id,
       { url, version, crc32,fileLength },
@@ -120,7 +118,7 @@ export class CommandController {
       DeviceSettings,
       { device },
       {
-        startup,
+  
         paymentLimit,
         fineAmountPerMinute,
         doorAutoCloseTimeMs,

@@ -20,39 +20,12 @@ import { EventEmitter2 } from '@nestjs/event-emitter';
 export class MqttHandlersProviders {
   // publish message
   constructor(private readonly eventEmitter: EventEmitter2) {}
-  async handlePublishMessage(typeName: string, dev_id: string, passedPayload?: any) {
+  async handlePublishMessage(
+    typeName: string,
+    dev_id: string,
+    passedPayload?: any,
+  ) {
     switch (typeName) {
-      //   case 'NoServiceMessage': {
-      //     const payload = this.generatePayload(
-      //       NoServiceMessage.command,
-      //       NoServiceMessage.payload,
-      //     );
-      //     return this.publishMessage(dev_id, payload);
-      //   }
-      //   case 'DeviceNotInSystem': {
-      //     const payload = this.generatePayload(
-      //       NoServiceMessage.command,
-      //       NoServiceMessage.payload,
-      //     );
-      //     return this.publishMessage(dev_id, payload);
-      //   }
-      //   case 'RegisterDevice': {
-      //     const CreateDevicePayload = CreateDevice(passedPayload.md5Hash);
-      //     const payload = this.generatePayload(
-      //       CreateDevicePayload.command,
-      //       CreateDevicePayload.payload,
-      //     );
-      //     return this.publishMessage(dev_id, payload);
-      //   }
-      //   case 'SetPassword': {
-      //     const commandPayload = PasswordCommand(passedPayload);
-      //     const payload = this.generatePayload(
-      //       commandPayload.command,
-      //       commandPayload.payload,
-      //     );
-      //     return this.publishMessage(dev_id, payload);
-      //   }
-
       case 'ResetStorage': {
         const commandPayload = StorageResetCommand(passedPayload);
         const payload = this.generatePayload(
@@ -61,20 +34,24 @@ export class MqttHandlersProviders {
         );
         return this.publishMessage(dev_id, payload);
       }
-   case 'UpdateFirmware': {
-  const { url, version, crc32, fileLength } = passedPayload;
+      case 'UpdateFirmware': {
+        const { url, version, crc32, fileLength } = passedPayload;
 
-  const commandPayload = await FotaBeginCommand(url, version, crc32, fileLength); // ← await it!
+        const commandPayload = await FotaBeginCommand(
+          url,
+          version,
+          crc32,
+          fileLength,
+        ); // ← await it!
 
-  const payload = this.generatePayload(
-    commandPayload.command,
-    commandPayload.payload,
-  );
+        const payload = this.generatePayload(
+          commandPayload.command,
+          commandPayload.payload,
+        );
 
-  return this.publishMessage(dev_id, payload);
-}
+        return this.publishMessage(dev_id, payload);
+      }
       case 'SendAppConfig': {
-   
         const commandPayload = SendAppConfigCommand(passedPayload);
         const payload = this.generatePayload(
           commandPayload.command,
@@ -83,7 +60,6 @@ export class MqttHandlersProviders {
         return this.publishMessage(dev_id, payload);
       }
       case 'SendAppExt1Config': {
-   
         const commandPayload = SendAppExt1ConfigCommand(passedPayload);
         const payload = this.generatePayload(
           commandPayload.command,
@@ -92,7 +68,6 @@ export class MqttHandlersProviders {
         return this.publishMessage(dev_id, payload);
       }
       case 'ResetLockerPassword': {
-   
         const commandPayload = SendResetLockerPasswordCommand(passedPayload);
         const payload = this.generatePayload(
           commandPayload.command,
@@ -101,7 +76,6 @@ export class MqttHandlersProviders {
         return this.publishMessage(dev_id, payload);
       }
       case 'OpenClose': {
-   
         const commandPayload = OpenCloseCommand(passedPayload);
         const payload = this.generatePayload(
           commandPayload.command,
@@ -110,8 +84,7 @@ export class MqttHandlersProviders {
         return this.publishMessage(dev_id, payload);
       }
       case 'Reconciliation': {
-   
-        const commandPayload =SendTransactionReconciliationCommand( );
+        const commandPayload = SendTransactionReconciliationCommand();
         const payload = this.generatePayload(
           commandPayload.command,
           commandPayload.payload,
@@ -134,17 +107,11 @@ export class MqttHandlersProviders {
       device_id: device_id,
       payload: payload,
     };
-    console.log(payload)
+    console.log(payload);
     this.eventEmitter.emit('publishMessage', { data });
 
-    return {msg:`Command has been sent`}
+    return { msg: `Command has been sent` };
   }
 
-  // call to needed function
-
  
-
-  //   celular remote number call
-  //  sending device commands by calling
-  async accessRequestForCellularRemoteNumber(device: Device, data: any) {}
 }
