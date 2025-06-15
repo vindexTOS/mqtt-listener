@@ -219,7 +219,7 @@ export const SendAppExt1ConfigCommand = (config: CreateAppExt1ConfigDto): messag
   return {
     command: 241,
     payload: [
-      { type: 'number16', value: config.startup },  // Typically 2 bytes
+      { type: 'number16', value: 0},  // Typically 2 bytes
       { type: 'number', value: config.networkType }, // 1 byte
       { type: 'string', value: ssid }, // Ensure SSID fits
       { type: 'number', value: 0 },  // 1 byte
