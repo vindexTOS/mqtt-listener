@@ -98,30 +98,16 @@ export class CreateAppConfigDto {
 }
 
 export class CreateAppExt1ConfigDto {
-  @IsInt()
-  @Min(0)
-  @Max(1)
-  uiMode: number;
+ 
 
-  @IsInt()
-  @Min(0)
-  @Max(5)
-  retryCount: number;
+  
 
-  @IsInt()
-  @Min(0)
-  @Max(255)
-  ledBrightness: number;
-
+ 
   @IsInt()
   @Min(100)
   @Max(60000)
   inactivityReset: number; // In ms
-  @IsInt()
-  @Min(0)
-  @Max(1)
-  startup: number; // Always 0
-
+ 
   @IsInt()
   @Min(0)
   @Max(1)
