@@ -185,7 +185,7 @@ export const SendAppConfigCommand = (params: CreateAppConfigDto): messageCommand
   return {
     command: 240, 
     payload: [
-      { type: 'number16', value: params.startup },                 
+      { type: 'number16', value: 0 },                 
       { type: 'number16', value: params.paymentLimit },           
       { type: 'number16', value: params.fineAmountPerMinute },    
       { type: 'number32', value: params.doorAutoCloseTimeMs },    
