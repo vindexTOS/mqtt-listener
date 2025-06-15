@@ -59,10 +59,7 @@ export class ServiceConfig {
   amount: number;
 }
 export class CreateAppConfigDto {
-  @IsInt()
-  @Min(0)
-  @Max(1)
-  startup?: number;
+ 
 
   @IsInt()
   @Min(1)

@@ -91,7 +91,7 @@ export class CommandController {
       throw new HttpException('Device not found', HttpStatus.NOT_FOUND);
     }
     const {
-      startup,
+ 
       paymentLimit,
       fineAmountPerMinute,
       doorAutoCloseTimeMs,
@@ -104,7 +104,7 @@ export class CommandController {
       'SendAppConfig',
       dev_id,
       {
-        startup,
+     
         paymentLimit,
         fineAmountPerMinute,
         doorAutoCloseTimeMs,
