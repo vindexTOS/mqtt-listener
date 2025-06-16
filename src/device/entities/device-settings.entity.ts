@@ -56,7 +56,7 @@ export class DeviceSettings {
 
   @Column({ type: Number, default: 2, nullable: true })
   network: number;
-  @Column({ type: Number, default: 0, nullable: true })
+  @Column({ type: Number, default: 2, nullable: true })
   networkType: number;
   @Column({ type: String, default: "", nullable: true })
   ssid: string;
@@ -87,9 +87,7 @@ export class DeviceSettings {
 
  
 
-  @Column({ type: Number, default:100, nullable: true })
-  inactivityReset: number;
-
+ 
   @Column()
   device_id: number; 
 

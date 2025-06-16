@@ -101,13 +101,8 @@ export class CreateAppExt1ConfigDto {
 
  
   @IsInt()
-  @Min(100)
-  @Max(60000)
-  inactivityReset: number; // In ms
- 
-  @IsInt()
-  @Min(0)
-  @Max(1)
+  @Min(2)
+  @Max(4)
   networkType: number; // 0 = cellular, 1 = WiFi
 
   @IsString()

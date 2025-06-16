@@ -33,7 +33,7 @@ dotenv.config();
       password: process.env.DB_PASSWORD,
       database: 'mqtt-listener',
       entities: [Auth,Device, DeviceSettings, DeviceMessages ,UnregisteredDevice , DeviceEarning , DeviceErrorLog,FirmwareVersion,PaymentTransactions, DeviceLockers],
-      synchronize: false,
+      synchronize: true,
     }), MicroservicesModule, MqttHandlersModule, DownloadFotaModule,
 
   ],
