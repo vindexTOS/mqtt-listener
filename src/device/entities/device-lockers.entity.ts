@@ -12,7 +12,7 @@ export class DeviceLockers {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', update: false  })
   lockerId: number;
 
   @Column({ type: 'int' })
